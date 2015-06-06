@@ -1,4 +1,3 @@
-IF DEF(_YELLOW)
 MelanieText1::
 	text "I nursed this"
 	line "BULBASAUR back to"
@@ -35,7 +34,6 @@ MelanieOddishText::
 
 MelanieSandshrewText::
 	text "SANDSHREW: Pikii!@@"
-ENDC
 
 _CeruleanHouse1Text1:: ; 9888c (26:488c)
 	text "My husband likes"

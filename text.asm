@@ -166,12 +166,10 @@ _OaksAideNoRoomText:: ; 802ec (20:42ec)
 	text "."
 	done
 
-IF DEF(_YELLOW)
 _NurseChanseyText::
 	text "CHANSEY: Chaaan"
 	line "sey!"
 	done
-ENDC
 
 INCLUDE "text/maps/viridian_forest.asm"
 INCLUDE "text/maps/mt_moon_1f.asm"
@@ -580,11 +578,9 @@ _CinnabarGymQuizIntroText:: ; 887b7 (22:47b7)
 	line "Here we go!"
 	prompt
 
-IF DEF(_YELLOW)
 	text "#MON Quiz!"
 	line "Test your skill!"
 	done
-ENDC
 
 _CinnabarQuizQuestionsText1:: ; 8886d (22:486d)
 	text "CATERPIE evolves"
@@ -847,7 +843,6 @@ _KabutopsFossilText:: ; 88fd5 (22:4fd5)
 	cont "rare #MON."
 	done
 
-IF DEF(_YELLOW)
 _FanClubPicture1Text::
 	text "My cute RAPIDASH."
 	done
@@ -855,7 +850,6 @@ _FanClubPicture1Text::
 _FanClubPicture2Text::
 	text "My beloved FEAROW."
 	done
-ENDC
 
 _LinkCableHelpText1:: ; 89001 (22:5001)
 	text "TRAINER TIPS"
@@ -1195,11 +1189,9 @@ _GotAwayText:: ; 8981f (22:581f)
 	text "Got away safely!"
 	prompt
 
-IF DEF(_YELLOW)
 _RunAwayText::
 	text "Hurry, get away!"
 	prompt
-ENDC
 
 _ItemsCantBeUsedHereText:: ; 89831 (22:5831)
 	text "Items can't be"
@@ -1594,12 +1586,10 @@ _WhichFloorText:: ; 89dad (22:5dad)
 	line "you want? "
 	done
 
-IF DEF(_YELLOW)
 _SleepingPikachuText1::
 	text "There isn't any"
 	line "response..."
 	prompt
-ENDC
 
 _PartyMenuNormalText:: ; 89dc8 (22:5dc8)
 	text "Choose a #MON."
@@ -1616,11 +1606,7 @@ _PartyMenuBattleText:: ; 89df1 (22:5df1)
 	done
 
 _PartyMenuUseTMText:: ; 89e08 (22:5e08)
-IF DEF(_YELLOW)
 	text "Teach to which"
-ELSE
-	text "Use TM on which"
-ENDC
 	line "#MON?"
 	done
 
@@ -1792,12 +1778,10 @@ _AccessedHoFPCText:: ; 8a0f4 (22:60f4)
 	line "OF FAME List."
 	prompt
 
-IF DEF(_YELLOW)
 _SleepingPikachuText2::
 	text "There isn't any"
 	line "response..."
 	prompt
-ENDC
 
 _SwitchOnText:: ; 0x8a131
 	text "Switch on!"
@@ -1852,13 +1836,11 @@ _CantTakeMonText:: ; 0x8a1f6
 	line "first."
 	prompt
 
-IF DEF(_YELLOW)
 _PikachuUnhappyText::
 	TX_RAM $cd6d
 	text "looks"
 	line "unhappy about it!"
 	prompt
-ENDC
 
 _ReleaseWhichMonText:: ; 0x8a228
 	text "Release which"
@@ -1981,7 +1963,6 @@ _WillBeTradedText:: ; 8a677 (22:6677)
 	cont "be traded."
 	done
 
-IF DEF(_YELLOW)
 _Colosseum3MonsText::
 	text "You need 3 #MON"
 	line "to fight!"
@@ -2084,7 +2065,6 @@ _ColosseumVersionText::
 	text "The game versions"
 	line "don't match."
 	prompt
-ENDC
 
 _Char00Text:: ; 8a696 (22:6696)
 	TX_NUM $FF8C,1,2
@@ -2094,12 +2074,10 @@ _Char00Text:: ; 8a696 (22:6696)
 _Char55Text:: ; 8a6a3 (22:66a3)
 	text $4B,"@@"
 
-IF DEF(_YELLOW)
 _NoPokemonText::
 	text "There are no"
 	line "#MON here!"
 	prompt
-ENDC
 
 INCLUDE "text/maps/digletts_cave_route_2_entrance.asm"
 INCLUDE "text/maps/viridian_forest_exit.asm"
@@ -2135,9 +2113,7 @@ INCLUDE "text/maps/route_16_gate_upstairs.asm"
 INCLUDE "text/maps/route_16_house.asm"
 INCLUDE "text/maps/route_18_gate.asm"
 INCLUDE "text/maps/route_18_gate_upstairs.asm"
-IF DEF(_OPTION_BEACH_HOUSE)
 INCLUDE "text/maps/beach_house.asm"
-ENDC
 INCLUDE "text/maps/pokemon_league_gate.asm"
 INCLUDE "text/maps/victory_road_2f.asm"
 INCLUDE "text/maps/bills_house.asm"
@@ -3305,20 +3281,11 @@ _Thanks2Text:: ; a8209 (2a:4209)
 	done
 
 _AfterTrade2Text:: ; a8212 (2a:4212)
-IF DEF(_YELLOW)
 	text "Hello there! Your"
 	line "old @"
-	TX_RAM wcd13
+	TX_RAM wInGameTradeGiveMonName
 	db " is"
 	cont "magnificent!"
-ELSE
-	text "The @"
-	TX_RAM wInGameTradeGiveMonName
-	text " you"
-	line "traded to me"
-
-	para "went and evolved!"
-ENDC
 	done
 
 _WannaTrade3Text:: ; a8240 (2a:4240)
@@ -3348,11 +3315,7 @@ _WrongMon3Text:: ; a8284 (2a:4284)
 	done
 
 _Thanks3Text:: ; a82bc (2a:42bc)
-IF DEF(_YELLOW)
 	text "Thanks, pal!"
-ELSE
-	text "Thanks pal!"
-ENDC
 	done
 
 _AfterTrade3Text:: ; a82c9 (2a:42c9)

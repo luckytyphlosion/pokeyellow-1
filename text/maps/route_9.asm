@@ -15,7 +15,6 @@ _Route9AfterBattleText1:: ; 8e2c8 (23:62c8)
 	cont "dark tunnel ahead."
 	done
 
-IF DEF(_YELLOW)
 _Route9BattleTextAJ::
 	text "I aim to be the"
 	line "ultimate trainer!"
@@ -30,7 +29,6 @@ _Route9AfterBattleTextAJ::
 	text "I'll restart my"
 	line "100-win streak"
 	cont "with SANDSHREW."
-ENDC
 
 _Route9BattleText2:: ; 8e2ff (23:62ff)
 	text "Who's that walking"
