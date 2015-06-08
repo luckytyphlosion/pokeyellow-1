@@ -202,54 +202,9 @@ SECTION "bank25",ROMX,BANK[$25]
 INCBIN "baserom.gbc",$94000,$98000 - $94000
 
 
-SECTION "bank26",ROMX,BANK[$26]
+SECTION "bank2f",ROMX[$5000],BANK[$2F]
 
-INCBIN "baserom.gbc",$98000,$9c000 - $98000
-
-
-SECTION "bank27",ROMX,BANK[$27]
-
-INCBIN "baserom.gbc",$9c000,$a0000 - $9c000
-
-
-SECTION "bank28",ROMX,BANK[$28]
-
-INCBIN "baserom.gbc",$a0000,$a4000 - $a0000
-
-
-SECTION "bank29",ROMX,BANK[$29]
-
-INCBIN "baserom.gbc",$a4000,$a8000 - $a4000
-
-
-SECTION "bank2A",ROMX,BANK[$2A]
-
-INCBIN "baserom.gbc",$a8000,$ac000 - $a8000
-
-
-SECTION "bank2B",ROMX,BANK[$2B]
-
-INCBIN "baserom.gbc",$ac000,$b0000 - $ac000
-
-
-SECTION "bank2C",ROMX,BANK[$2C]
-
-INCBIN "baserom.gbc",$b0000,$b4000 - $b0000
-
-
-SECTION "bank2D",ROMX,BANK[$2D]
-
-INCBIN "baserom.gbc",$b4000,$b8000 - $b4000
-
-
-SECTION "bank2E",ROMX,BANK[$2E]
-
-INCBIN "baserom.gbc",$b8000,$bc000 - $b8000
-
-
-SECTION "bank2F",ROMX,BANK[$2F]
-
-INCBIN "baserom.gbc",$bc000,$c0000 - $bc000
+INCBIN "baserom.gbc",$bd000,$c0000 - $bd000
 
 
 SECTION "bank30",ROMX,BANK[$30]

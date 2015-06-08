@@ -11,7 +11,7 @@ _MomWakeUpText::
 
 _MomHealText1::
 	text "MOM: ",$52,", if"
-	line "your drive your"
+	line "you drive your"
 	cont "#MON too hard,"
 	cont "they'll dislike"
 	cont "you."

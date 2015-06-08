@@ -784,7 +784,7 @@ wNPCMovementScriptSpriteOffset:: ; cf17
 wcf18:: ds 2 ; used with overworld movement
 
 wGBC:: ; cf1a
-	ds 1
+	;ds 1
 
 wOnSGB:: ; cf1b
 ; if running on SGB, it's 1, else it's 0
@@ -936,9 +936,9 @@ wEnemyMonAttack::    dw
 wEnemyMonDefense::   dw
 wEnemyMonSpeed::     dw
 wEnemyMonSpecial::   dw
-wEnemyMonPP::        ds 2 ; NUM_MOVES - 2
+wEnemyMonPP::        ds 3 ; NUM_MOVES - 2
 SECTION "WRAM Bank 1", WRAMX, BANK[1]
-                     ds 2 ; NUM_MOVES - 2
+                     ds 1 ; NUM_MOVES - 2
 
 wEnemyMonBaseStats:: ds 5
 wEnemyMonCatchRate:: ds 1
@@ -1634,7 +1634,12 @@ wDestinationWarpID:: ; d42f
 ; if $ff, the player's coordinates are not updated when entering the map
 	ds 1
 
-	ds 128
+	ds 24
+
+wExpressionNumber:: ; d448
+	ds 1
+
+	ds 103
 
 wd4b0:: ds 1 ; number of signs on the map
 wd4b1:: ds 32 ; starting address for sign coords

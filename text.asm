@@ -1,18 +1,15 @@
 
-TEXT_1  EQU $20
-TEXT_2  EQU $21
-TEXT_3  EQU $22
-TEXT_4  EQU $23
-TEXT_5  EQU $24
-TEXT_6  EQU $25
-TEXT_7  EQU $26
-TEXT_8  EQU $27
-TEXT_9  EQU $28
-TEXT_10 EQU $29
-TEXT_11 EQU $2a
+TEXT_1  EQU $26
+TEXT_2  EQU $27
+TEXT_3  EQU $28
+TEXT_4  EQU $29
+TEXT_5  EQU $2a
+TEXT_6  EQU $2b
+TEXT_7  EQU $2c
+TEXT_8  EQU $2d
 
-POKEDEX_TEXT EQU $2b
-MOVE_NAMES   EQU $2c
+POKEDEX_TEXT EQU $2e
+MOVE_NAMES   EQU $2f
 
 INCLUDE "macros.asm"
 
@@ -194,17 +191,16 @@ INCLUDE "text/maps/rocket_hideout_elevator.asm"
 INCLUDE "text/maps/silph_co_2f.asm"
 INCLUDE "text/maps/silph_co_3f.asm"
 INCLUDE "text/maps/silph_co_4f.asm"
-INCLUDE "text/maps/silph_co_5f_1.asm"
-
-
-SECTION "Text 2", ROMX, BANK[TEXT_2]
-
-INCLUDE "text/maps/silph_co_5f_2.asm"
+INCLUDE "text/maps/silph_co_5f.asm"
 INCLUDE "text/maps/silph_co_6f.asm"
 INCLUDE "text/maps/silph_co_7f.asm"
 INCLUDE "text/maps/silph_co_8f.asm"
 INCLUDE "text/maps/silph_co_9f.asm"
 INCLUDE "text/maps/silph_co_10f.asm"
+
+
+SECTION "Text 2", ROMX, BANK[TEXT_2]
+
 INCLUDE "text/maps/silph_co_11f.asm"
 INCLUDE "text/maps/mansion_2f.asm"
 INCLUDE "text/maps/mansion_3f.asm"
@@ -228,12 +224,7 @@ INCLUDE "text/maps/champion.asm"
 INCLUDE "text/maps/lorelei.asm"
 INCLUDE "text/maps/bruno.asm"
 INCLUDE "text/maps/agatha.asm"
-INCLUDE "text/maps/rock_tunnel_b2f_1.asm"
-
-
-SECTION "Text 3", ROMX, BANK[TEXT_3]
-
-INCLUDE "text/maps/rock_tunnel_b2f_2.asm"
+INCLUDE "text/maps/rock_tunnel_b2f.asm"
 INCLUDE "text/maps/seafoam_islands_1f.asm"
 INCLUDE "text/maps/seafoam_islands_b1f.asm"
 INCLUDE "text/maps/seafoam_islands_b2f.asm"
@@ -258,6 +249,15 @@ _AIBattleUseItemText:: ; 880d5 (22:40d5)
 	TX_RAM wEnemyMonNick
 	text "!"
 	prompt
+
+_BoxFullTest::
+	text "The BOX is full!"
+	done
+
+_BoxWillBeClearedText::
+	text "The BOX will be"
+	line "cleared."
+	done
 
 _TradeWentToText:: ; 880ef (22:40ef)
 	TX_RAM wcf4b
@@ -579,7 +579,29 @@ _CinnabarGymQuizIntroText:: ; 887b7 (22:47b7)
 	prompt
 
 	text "#MON Quiz!"
+
+	para "Get it right and"
+	line "the door opens to"
+	cont "the next room!"
+
+	para "Get it wrong and"
+	line "face the trainer"
+	cont "blocking the way!"
+
+	para "If you want to"
+	line "conserve your"
+	cont "#MON for the"
+	cont "GYM LEADER..."
+
+	para "Then get it right!"
+	line "Here we go!"
+	db $51
+	done
+
+	text "#MON Quiz!"
+
 	line "Test your skill!"
+	db $51
 	done
 
 _CinnabarQuizQuestionsText1:: ; 8886d (22:486d)
@@ -1470,6 +1492,30 @@ _GrewLevelText:: ; 89c01 (22:5c01)
 	TX_NUM W_CURENEMYLVL, 1, 3
 	text "!@@"
 
+_SuperEffectiveText:: ; 89d22 (22:5d22)
+	text "It's super"
+	line "effective!"
+	prompt
+
+_NotVeryEffectiveText:: ; 89d38 (22:5d38)
+	text "It's not very"
+	line "effective..."
+	prompt
+
+_SafariZoneEatingText:: ; 89d53 (22:5d53)
+	text "Wild @"
+	TX_RAM wEnemyMonNick
+	db $0
+	line "is eating!"
+	prompt
+
+_SafariZoneAngryText:: ; 89d6a (22:5d6a)
+	text "Wild @"
+	TX_RAM wEnemyMonNick
+	db $0
+	line "is angry!"
+	prompt
+
 _WildMonAppearedText:: ; 89c1d (22:5c1d)
 	text "Wild @"
 	TX_RAM wEnemyMonNick
@@ -1484,6 +1530,9 @@ _HookedMonAttackedText:: ; 89c33 (22:5c33)
 	db $0
 	cont "attacked!"
 	prompt
+
+
+SECTION "Text 3", ROMX, BANK[TEXT_3]
 
 _EnemyAppearedText:: ; 89c4f (22:5c4f)
 	TX_RAM wEnemyMonNick
@@ -1543,30 +1592,6 @@ _ComeBackText:: ; 89d15 (22:5d15)
 	db $0
 	line "Come back!"
 	done
-
-_SuperEffectiveText:: ; 89d22 (22:5d22)
-	text "It's super"
-	line "effective!"
-	prompt
-
-_NotVeryEffectiveText:: ; 89d38 (22:5d38)
-	text "It's not very"
-	line "effective..."
-	prompt
-
-_SafariZoneEatingText:: ; 89d53 (22:5d53)
-	text "Wild @"
-	TX_RAM wEnemyMonNick
-	db $0
-	line "is eating!"
-	prompt
-
-_SafariZoneAngryText:: ; 89d6a (22:5d6a)
-	text "Wild @"
-	TX_RAM wEnemyMonNick
-	db $0
-	line "is angry!"
-	prompt
 
 ; money related
 _PickUpPayDayMoneyText:: ; 89d80 (22:5d80)
@@ -1838,7 +1863,7 @@ _CantTakeMonText:: ; 0x8a1f6
 
 _PikachuUnhappyText::
 	TX_RAM $cd6d
-	text "looks"
+	text " looks"
 	line "unhappy about it!"
 	prompt
 
@@ -1918,19 +1943,16 @@ _AccessedOaksPCText:: ; 8a39a (22:639a)
 	line "Rating System."
 	prompt
 
-_WhereWouldYouLikeText:: ; 8a3d0 (22:63d0)
-	text "Where would you"
-	line "like to go?"
-	done
+_ExpressionText::
+	text "This expression is"
+	line "No. @"
+	TX_NUM wExpressionNumber, 1, 2
+	text "."
+	prompt
 
-_PleaseWaitText:: ; 8a3ed (22:63ed)
-	text "OK, please wait"
-	line "just a moment."
-	done
-
-_LinkCanceledText:: ; 8a40d (22:640d)
-	text "The link was"
-	line "canceled."
+_NotEnoughMemoryText::
+	text "Not enough Yellow"
+	line "Version memory."
 	done
 
 INCLUDE "text/oakspeech.asm"
@@ -2049,17 +2071,17 @@ _ColosseumIneligibleText::
 _ColosseumWhereToText::
 	text "Where would you"
 	line "like to go?"
-	prompt
+	done
 
 _ColosseumPleaseWaitText::
 	text "OK, please wait"
 	line "just a moment."
-	prompt
+	done
 
 _ColosseumCanceledText::
 	text "The link was"
 	line "canceled."
-	prompt
+	done
 
 _ColosseumVersionText::
 	text "The game versions"
@@ -2068,7 +2090,7 @@ _ColosseumVersionText::
 
 _Char00Text:: ; 8a696 (22:6696)
 	TX_NUM $FF8C,1,2
-	text " ERROR."
+	text " error."
 	done
 
 _Char55Text:: ; 8a6a3 (22:66a3)
@@ -2086,12 +2108,7 @@ INCLUDE "text/maps/route_2_gate.asm"
 INCLUDE "text/maps/viridian_forest_entrance.asm"
 INCLUDE "text/maps/mt_moon_pokecenter.asm"
 INCLUDE "text/maps/saffron_gates.asm"
-INCLUDE "text/maps/daycare_1.asm"
-
-
-SECTION "Text 4", ROMX, BANK[TEXT_4]
-
-INCLUDE "text/maps/daycare_2.asm"
+INCLUDE "text/maps/daycare.asm"
 INCLUDE "text/maps/underground_path_route_5_entrance.asm"
 INCLUDE "text/maps/underground_path_route_6_entrance.asm"
 INCLUDE "text/maps/underground_path_route_7_entrance.asm"
@@ -2125,14 +2142,14 @@ INCLUDE "text/maps/route_5.asm"
 INCLUDE "text/maps/route_6.asm"
 INCLUDE "text/maps/route_7.asm"
 INCLUDE "text/maps/route_8.asm"
-INCLUDE "text/maps/route_9.asm"
+INCLUDE "text/maps/route_9_1.asm"
+
+
+SECTION "Text 4", ROMX, BANK[TEXT_4]
+
+INCLUDE "text/maps/route_9_2.asm"
 INCLUDE "text/maps/route_10.asm"
-INCLUDE "text/maps/route_11_1.asm"
-
-
-SECTION "Text 5", ROMX, BANK[TEXT_5]
-
-INCLUDE "text/maps/route_11_2.asm"
+INCLUDE "text/maps/route_11.asm"
 INCLUDE "text/maps/route_12.asm"
 INCLUDE "text/maps/route_13.asm"
 INCLUDE "text/maps/route_14.asm"
@@ -2145,12 +2162,7 @@ INCLUDE "text/maps/route_20.asm"
 INCLUDE "text/maps/route_21.asm"
 INCLUDE "text/maps/route_22.asm"
 INCLUDE "text/maps/route_23.asm"
-INCLUDE "text/maps/route_24_1.asm"
-
-
-SECTION "Text 6", ROMX, BANK[TEXT_6]
-
-INCLUDE "text/maps/route_24_2.asm"
+INCLUDE "text/maps/route_24.asm"
 INCLUDE "text/maps/route_25.asm"
 
 _FileDataDestroyedText:: ; 945f1 (25:45f1)
@@ -2161,6 +2173,10 @@ _FileDataDestroyedText:: ; 945f1 (25:45f1)
 _WouldYouLikeToSaveText:: ; 9460e (25:460e)
 	text "Would you like to"
 	line "SAVE the game?"
+	done
+
+_SavingText::
+	text "Saving..."
 	done
 
 _GameSavedText:: ; 94630 (25:4630)
@@ -2204,6 +2220,9 @@ _StoppedEvolvingText:: ; 946dd (25:46dd)
 	db $0
 	line "stopped evolving!"
 	prompt
+
+
+SECTION "Text 5", ROMX, BANK[TEXT_5]
 
 _IsEvolvingText:: ; 946fb (25:46fb)
 	text "What? @"
@@ -2385,16 +2404,6 @@ _TooWeakSubstituteText:: ; 9495e (25:495e)
 	line "a SUBSTITUTE!"
 	prompt
 
-_CoinsScatteredText:: ; 9497e (25:497e)
-	text "Coins scattered"
-	line "everywhere!"
-	prompt
-
-_GettingPumpedText:: ; 9499b (25:499b)
-	text $5a, "'s"
-	line "getting pumped!"
-	prompt
-
 _WasSeededText:: ; 949af (25:49af)
 	text $59
 	line "was seeded!"
@@ -2418,6 +2427,11 @@ _ConvertedTypeText:: ; 949e5 (25:49e5)
 _StatusChangesEliminatedText:: ; 949fc (25:49fc)
 	text "All STATUS changes"
 	line "are eliminated!"
+	prompt
+
+_GettingPumpedText:: ; 9499b (25:499b)
+	text $5a, "'s"
+	line "getting pumped!"
 	prompt
 
 _StartedSleepingEffect:: ; 94a20 (25:4a20)
@@ -2460,6 +2474,11 @@ _ShroudedInMistText:: ; 94abf (25:4abf)
 	line "shrouded in mist!"
 	prompt
 
+_CoinsScatteredText:: ; 9497e (25:497e)
+	text "Coins scattered"
+	line "everywhere!"
+	prompt
+
 _SuckedHealthText:: ; 94ad5 (25:4ad5)
 	text "Sucked health from"
 	line $59, "!"
@@ -2487,12 +2506,7 @@ INCLUDE "text/maps/viridian_house.asm"
 INCLUDE "text/maps/viridian_gym.asm"
 INCLUDE "text/maps/museum_1f.asm"
 INCLUDE "text/maps/museum_2f.asm"
-INCLUDE "text/maps/pewter_gym_1.asm"
-
-
-SECTION "Text 7", ROMX, BANK[TEXT_7]
-
-INCLUDE "text/maps/pewter_gym_2.asm"
+INCLUDE "text/maps/pewter_gym.asm"
 INCLUDE "text/maps/pewter_house_1.asm"
 INCLUDE "text/maps/pewter_mart.asm"
 INCLUDE "text/maps/pewter_house_2.asm"
@@ -2503,7 +2517,12 @@ INCLUDE "text/maps/cerulean_pokecenter.asm"
 INCLUDE "text/maps/cerulean_gym.asm"
 INCLUDE "text/maps/bike_shop.asm"
 INCLUDE "text/maps/cerulean_mart.asm"
-INCLUDE "text/maps/cerulean_badge_house.asm"
+INCLUDE "text/maps/cerulean_badge_house_1.asm"
+
+
+SECTION "Text 6", ROMX, BANK[TEXT_6]
+
+INCLUDE "text/maps/cerulean_badge_house_2.asm"
 INCLUDE "text/maps/lavender_pokecenter.asm"
 INCLUDE "text/maps/pokemon_tower_1f.asm"
 INCLUDE "text/maps/pokemon_tower_2f.asm"
@@ -2519,14 +2538,21 @@ INCLUDE "text/maps/name_rater.asm"
 INCLUDE "text/maps/vermilion_pokecenter.asm"
 INCLUDE "text/maps/fan_club.asm"
 INCLUDE "text/maps/vermilion_mart.asm"
-INCLUDE "text/maps/vermilion_gym_1.asm"
-
-
-SECTION "Text 8", ROMX, BANK[TEXT_8]
-
-INCLUDE "text/maps/vermilion_gym_2.asm"
+INCLUDE "text/maps/vermilion_gym.asm"
 INCLUDE "text/maps/vermilion_house.asm"
 INCLUDE "text/maps/vermilion_dock.asm"
+
+TeachingHMsText::
+	text "Once a #MON"
+	line "learns an HM, the"
+	cont "technique can't"
+	cont "be replaced."
+
+	para "Better think care-"
+	line "fully before you"
+	cont "teach HM moves."
+	done
+
 INCLUDE "text/maps/vermilion_fishing_house.asm"
 INCLUDE "text/maps/celadon_dept_store_1f.asm"
 INCLUDE "text/maps/celadon_dept_store_2f.asm"
@@ -2540,7 +2566,12 @@ INCLUDE "text/maps/celadon_mansion_4f_outside.asm"
 INCLUDE "text/maps/celadon_mansion_4f_inside.asm"
 INCLUDE "text/maps/celadon_pokecenter.asm"
 INCLUDE "text/maps/celadon_gym.asm"
-INCLUDE "text/maps/celadon_game_corner.asm"
+INCLUDE "text/maps/celadon_game_corner_1.asm"
+
+
+SECTION "Text 7", ROMX, BANK[TEXT_7]
+
+INCLUDE "text/maps/celadon_game_corner_2.asm"
 INCLUDE "text/maps/celadon_dept_store_5f.asm"
 INCLUDE "text/maps/celadon_prize_room.asm"
 INCLUDE "text/maps/celadon_diner.asm"
@@ -2551,12 +2582,7 @@ INCLUDE "text/maps/fuchsia_house.asm"
 INCLUDE "text/maps/fuchsia_pokecenter.asm"
 INCLUDE "text/maps/wardens_house.asm"
 INCLUDE "text/maps/safari_zone_entrance.asm"
-INCLUDE "text/maps/fuchsia_gym_1.asm"
-
-
-SECTION "Text 9", ROMX, BANK[TEXT_9]
-
-INCLUDE "text/maps/fuchsia_gym_2.asm"
+INCLUDE "text/maps/fuchsia_gym.asm"
 INCLUDE "text/maps/fuchsia_meeting_room.asm"
 INCLUDE "text/maps/fuchsia_fishing_house.asm"
 INCLUDE "text/maps/mansion_1f.asm"
@@ -2577,6 +2603,10 @@ INCLUDE "text/maps/saffron_mart.asm"
 INCLUDE "text/maps/silph_co_1f.asm"
 INCLUDE "text/maps/saffron_pokecenter.asm"
 INCLUDE "text/maps/mr_psychics_house.asm"
+
+_PokemonText::
+	text "#MON!"
+	done
 
 _PokemartGreetingText:: ; a259c (28:659c)
 	text "Hi there!"
@@ -2763,6 +2793,11 @@ _PokemonCenterFarewellText:: ; a2910 (28:6910)
 	line "you again!"
 	done
 
+_LooksContentText::
+	text "It looks very"
+	line "content asleep."
+	done
+
 _CableClubNPCAreaReservedFor2FriendsLinkedByCableText:: ; a292b (28:692b)
 	text "This area is"
 	line "reserved for 2"
@@ -2783,6 +2818,9 @@ _CableClubNPCPleaseApplyHereHaveToSaveText:: ; a2985 (28:6985)
 	cont "to save the game."
 	done
 
+
+SECTION "Text 8", ROMX, BANK[TEXT_8]
+
 _CableClubNPCPleaseWaitText:: ; a29cc (28:69cc)
 	text "Please wait.@@"
 
@@ -2796,9 +2834,6 @@ _CableClubNPCLinkClosedBecauseOfInactivityText:: ; a29db (28:69db)
 	cont "come again!"
 	done
 
-
-SECTION "Text 10", ROMX, BANK[TEXT_10]
-
 _CableClubNPCPleaseComeAgainText:: ; a4000 (29:4000)
 	text "Please come again!"
 	done
@@ -2808,27 +2843,6 @@ _CableClubNPCMakingPreparationsText:: ; a4014 (29:4014)
 	line "preparations."
 	cont "Please wait."
 	done
-
-_UsedStrengthText:: ; a403c (29:403c)
-	TX_RAM wcd6d
-	text " used"
-	line "STRENGTH.@@"
-
-_CanMoveBouldersText:: ; a4051 (29:4051)
-	TX_RAM wcd6d
-	text " can"
-	line "move boulders."
-	prompt
-
-_CurrentTooFastText:: ; a4069 (29:4069)
-	text "The current is"
-	line "much too fast!"
-	prompt
-
-_CyclingIsFunText:: ; a4088 (29:4088)
-	text "Cycling is fun!"
-	line "Forget SURFing!"
-	prompt
 
 _FlashLightsAreaText:: ; a40a9 (29:40a9)
 	text "A blinding FLASH"
@@ -2870,6 +2884,27 @@ _CannotUseItemsHereText:: ; a414e (29:414e)
 _CannotGetOffHereText:: ; a4168 (29:4168)
 	text "You can't get off"
 	line "here."
+	prompt
+
+_UsedStrengthText:: ; a403c (29:403c)
+	TX_RAM wcd6d
+	text " used"
+	line "STRENGTH.@@"
+
+_CanMoveBouldersText:: ; a4051 (29:4051)
+	TX_RAM wcd6d
+	text " can"
+	line "move boulders."
+	prompt
+
+_CurrentTooFastText:: ; a4069 (29:4069)
+	text "The current is"
+	line "much too fast!"
+	prompt
+
+_CyclingIsFunText:: ; a4088 (29:4088)
+	text "Cycling is fun!"
+	line "Forget SURFing!"
 	prompt
 
 _GotMonText:: ; a4180 (29:4180)
@@ -2979,6 +3014,12 @@ _SurfingGotOnText:: ; a685e (29:685e)
 _SurfingNoPlaceToGetOffText:: ; a686f (29:686f)
 	text "There's no place"
 	line "to get off!"
+	prompt
+
+_RefusingText::
+	TX_RAM wcd6d
+	db $0
+	line "is refusing!"
 	prompt
 
 _VitaminStatRoseText:: ; a688c (29:688c)
@@ -3142,8 +3183,10 @@ _BoxFullCannotThrowBallText:: ; a6b69 (29:6b69)
 	cont "use that item!"
 	prompt
 
-
-SECTION "Text 11", ROMX, BANK[TEXT_11]
+_DontHavePokemonText::
+	text "You don't have a "
+	line "#MON!"
+	prompt
 
 _ItemUseText001:: ; a8000 (2a:4000)
 	text $52," used@@"
@@ -3284,7 +3327,7 @@ _AfterTrade2Text:: ; a8212 (2a:4212)
 	text "Hello there! Your"
 	line "old @"
 	TX_RAM wInGameTradeGiveMonName
-	db " is"
+	text " is"
 	cont "magnificent!"
 	done
 

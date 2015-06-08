@@ -86,7 +86,7 @@ FanClubChairStoryText::
 	cont "love it!"
 
 	para "Hug it...when..."
-	cont "sleeping...warm"
+	line "sleeping...warm"
 	cont "and cuddly..."
 	cont "spectacular..."
 	cont "ravishing..."
@@ -175,16 +175,5 @@ _FanClubText6:: ; 9a948 (26:6948)
 	text "Our CHAIRMAN is"
 	line "very vocal about"
 	cont "#MON."
-	done
-
-_FanClubText7:: ; 9a970 (26:6970)
-	text "Let's all listen"
-	line "politely to other"
-	cont "trainers!"
-	done
-
-_FanClubText8:: ; 9a99d (26:699d)
-	text "If someone brags,"
-	line "brag right back!"
 	done
 

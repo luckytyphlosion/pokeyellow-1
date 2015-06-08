@@ -31,46 +31,6 @@ _OaksLabPikachuText::
 	line "it's yours!"
 	done
 
-_OaksLabCharmanderText:: ; 94e06 (25:4e06)
-	text "So! You want the"
-	line "fire #MON,"
-	cont "CHARMANDER?"
-	done
-
-_OaksLabSquirtleText:: ; 94e2f (25:4e2f)
-	text "So! You want the"
-	line "water #MON,"
-	cont "SQUIRTLE?"
-	done
-
-_OaksLabBulbasaurText:: ; 94e57 (25:4e57)
-	text "So! You want the"
-	line "plant #MON,"
-	cont "BULBASAUR?"
-	done
-
-_OaksLabMonEnergeticText:: ; 94e80 (25:4e80)
-	text "This #MON is"
-	line "really energetic!"
-	prompt
-
-_OaksLabReceivedMonText:: ; 94ea0 (25:4ea0)
-	text $52, " received"
-	line "a @"
-	TX_RAM wcd6d
-	text "!@@"
-
-_OaksLabLastMonText:: ; 94eb6 (25:4eb6)
-	text "That's PROF.OAK's"
-	line "last #MON!"
-	done
-
-_OaksLabText_1d2f0:: ; 94ed2 (25:4ed2)
-	text "OAK: Now, ", $52, ","
-	line "which #MON do"
-	cont "you want?"
-	done
-
 _OaksLabText_1d2f5:: ; 94ef8 (25:4ef8)
 	text "OAK: If a wild"
 	line "#MON appears,"
@@ -146,8 +106,8 @@ _OaksLabGivePokeballsText2:: ; 950f2 (25:50f2)
 
 	para "Just like I showed"
 	line "you, throw a #"
-	line "BALL at it and try"
-	line "to catch it!"
+	cont "BALL at it and try"
+	cont "to catch it!"
 
 	para "This won't always"
 	line "work, though."
@@ -282,7 +242,7 @@ _OaksLabOakGivesText::
 
 _OaksLabReceivedText::
 	text $52," received"
-	line "a "
+	line "a @"
 	TX_RAM $CD6D
 	text "!@@"
 
@@ -290,17 +250,6 @@ _OaksLabLeavingText:: ; 95427 (25:5427)
 	text "OAK: Hey! Don't go"
 	line "away yet!"
 	done
-
-_OaksLabRivalPickingMonText:: ; 95444 (25:5444)
-	text $53, ": I'll take"
-	line "this one, then!"
-	done
-
-_OaksLabRivalReceivedMonText:: ; 95461 (25:5461)
-	text $53, " received"
-	line "a @"
-	TX_RAM wcd6d
-	text "!@@"
 
 _OaksLabRivalChallengeText:: ; 95477 (25:5477)
 	text $53, ": Wait"

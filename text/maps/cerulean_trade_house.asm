@@ -1,5 +1,8 @@
 MelanieText1::
-	text "I nursed this"
+	text "I take care of"
+	line "injured #MON."
+
+	para "I nursed this"
 	line "BULBASAUR back to"
 	cont "health."
 
@@ -34,13 +37,3 @@ MelanieOddishText::
 
 MelanieSandshrewText::
 	text "SANDSHREW: Pikii!@@"
-
-_CeruleanHouse1Text1:: ; 9888c (26:488c)
-	text "My husband likes"
-	line "trading #MON."
-
-	para "If you are a"
-	line "collector, would"
-	cont "you please trade"
-	cont "with him?"
-	done

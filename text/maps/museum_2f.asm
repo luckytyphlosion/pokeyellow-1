@@ -45,6 +45,7 @@ _Museum2FPikachuText2::
 	line "that PIKACHU off"
 	cont "you, but it's too"
 	cont "attached to you."
+	done
 
 _Museum2FText6:: ; 96933 (25:6933)
 	text "SPACE SHUTTLE"

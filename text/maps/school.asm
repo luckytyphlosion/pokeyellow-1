@@ -9,6 +9,7 @@ _SchoolText3::
 	line "will become tame"
 	cont "if you treat them"
 	cont "nicely."
+	done
 
 _SchoolText2:: ; 95d40 (25:5d40)
 	text "Okay!"
