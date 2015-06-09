@@ -29,23 +29,120 @@ INCBIN "baserom.gbc",$8000,$c000 - $8000
 
 SECTION "bank03",ROMX,BANK[$03]
 
-INCBIN "baserom.gbc",$c000,$10000 - $c000
+INCBIN "baserom.gbc",$c000,$e91b - $c000
+
+GymLeaderFaceAndBadgeTileGraphics: ; e91b (3:691b)
+	INCBIN "gfx/badges.2bpp"
+
+INCBIN "baserom.gbc",$ed1b,$10000 - $ed1b
 
 
-SECTION "bank04",ROMX,BANK[$04]
+SECTION "Graphics", ROMX, BANK[GFX]
 
-INCBIN "baserom.gbc",$10000,$11a97 - $10000
+PokemonLogoJapanGraphics:       INCBIN "gfx/pokemon_logo_japan.2bpp"
+FontGraphics:                   INCBIN "gfx/font.1bpp"
+ABTiles:                        INCBIN "gfx/AB.2bpp"
+HpBarAndStatusGraphics:         INCBIN "gfx/hp_bar_and_status.2bpp"
+BattleHudTiles1:                INCBIN "gfx/battle_hud1.1bpp"
+BattleHudTiles2:                INCBIN "gfx/battle_hud2.1bpp"
+BattleHudTiles3:                INCBIN "gfx/battle_hud3.1bpp"
+NintendoCopyrightLogoGraphics:  INCBIN "gfx/copyright.2bpp"
+GamefreakLogoGraphics:          INCBIN "gfx/gamefreak.2bpp"
+NineTile:                       INCBIN "gfx/9_tile.2bpp"
+TextBoxGraphics:                INCBIN "gfx/text_box.2bpp"
+PokedexTileGraphics:            INCBIN "gfx/pokedex.2bpp"
+WorldMapTileGraphics:           INCBIN "gfx/town_map.2bpp"
+PlayerCharacterTitleGraphics:   INCBIN "gfx/player_title.2bpp"
+
+INCBIN "baserom.gbc",$11468,$11a97 - $11468
 
 RedPicFront:: INCBIN "pic/ytrainer/red.pic"
 ShrinkPic1::  INCBIN "pic/trainer/shrink1.pic"
 ShrinkPic2::  INCBIN "pic/trainer/shrink2.pic"
 
-INCBIN "baserom.gbc",$11c22,$14000 - $11c22
+INCBIN "baserom.gbc",$11c22,$12365 - $11c22
 
 
-SECTION "bank05",ROMX,BANK[$05]
+SECTION "NPC Sprites 1", ROMX, BANK[NPC_SPRITES_1]
 
-INCBIN "baserom.gbc",$14000,$18000 - $14000
+OakAideSprite:         INCBIN "gfx/sprites/oak_aide.2bpp"
+RockerSprite:          INCBIN "gfx/sprites/rocker.2bpp"
+SwimmerSprite:         INCBIN "gfx/sprites/swimmer.2bpp"
+WhitePlayerSprite:     INCBIN "gfx/sprites/white_player.2bpp"
+GymHelperSprite:       INCBIN "gfx/sprites/gym_helper.2bpp"
+OldPersonSprite:       INCBIN "gfx/sprites/old_person.2bpp"
+MartGuySprite:         INCBIN "gfx/sprites/mart_guy.2bpp"
+FisherSprite:          INCBIN "gfx/sprites/fisher.2bpp"
+OldMediumWomanSprite:  INCBIN "gfx/sprites/old_medium_woman.2bpp"
+NurseSprite:           INCBIN "gfx/sprites/nurse.2bpp"
+CableClubWomanSprite:  INCBIN "gfx/sprites/cable_club_woman.2bpp"
+MrMasterballSprite:    INCBIN "gfx/sprites/mr_masterball.2bpp"
+LaprasGiverSprite:     INCBIN "gfx/sprites/lapras_giver.2bpp"
+WardenSprite:          INCBIN "gfx/sprites/warden.2bpp"
+SsCaptainSprite:       INCBIN "gfx/sprites/ss_captain.2bpp"
+Fisher2Sprite:         INCBIN "gfx/sprites/fisher2.2bpp"
+BlackbeltSprite:       INCBIN "gfx/sprites/blackbelt.2bpp"
+GuardSprite:           INCBIN "gfx/sprites/guard.2bpp"
+BallSprite:            INCBIN "gfx/sprites/ball.2bpp"
+OmanyteSprite:         INCBIN "gfx/sprites/omanyte.2bpp"
+BoulderSprite:         INCBIN "gfx/sprites/boulder.2bpp"
+PaperSheetSprite:      INCBIN "gfx/sprites/paper_sheet.2bpp"
+BookMapDexSprite:      INCBIN "gfx/sprites/book_map_dex.2bpp"
+ClipboardSprite:       INCBIN "gfx/sprites/clipboard.2bpp"
+SnorlaxSprite:         INCBIN "gfx/sprites/snorlax.2bpp"
+OldAmberSprite:        INCBIN "gfx/sprites/old_amber.2bpp"
+LyingOldManSprite:     INCBIN "gfx/sprites/lying_old_man.2bpp"
+QuestionMarkSprite:    INCBIN "gfx/sprites/question_mark.2bpp"
+
+INCBIN "baserom.gbc",$13765,$14000 - $13765
+
+
+SECTION "NPC Sprites 2", ROMX, BANK[NPC_SPRITES_2]
+
+INCBIN "baserom.gbc",$14000,$143f1 - $14000
+
+RedCyclingSprite:     INCBIN "gfx/sprites/cycling.2bpp"
+RedSprite:            INCBIN "gfx/sprites/red.2bpp"
+BlueSprite:           INCBIN "gfx/sprites/blue.2bpp"
+OakSprite:            INCBIN "gfx/sprites/oak.2bpp"
+BugCatcherSprite:     INCBIN "gfx/sprites/bug_catcher.2bpp"
+SlowbroSprite:        INCBIN "gfx/sprites/slowbro.2bpp"
+LassSprite:           INCBIN "gfx/sprites/lass.2bpp"
+BlackHairBoy1Sprite:  INCBIN "gfx/sprites/black_hair_boy_1.2bpp"
+LittleGirlSprite:     INCBIN "gfx/sprites/little_girl.2bpp"
+BirdSprite:           INCBIN "gfx/sprites/bird.2bpp"
+FatBaldGuySprite:     INCBIN "gfx/sprites/fat_bald_guy.2bpp"
+GamblerSprite:        INCBIN "gfx/sprites/gambler.2bpp"
+BlackHairBoy2Sprite:  INCBIN "gfx/sprites/black_hair_boy_2.2bpp"
+GirlSprite:           INCBIN "gfx/sprites/girl.2bpp"
+HikerSprite:          INCBIN "gfx/sprites/hiker.2bpp"
+FoulardWomanSprite:   INCBIN "gfx/sprites/foulard_woman.2bpp"
+GentlemanSprite:      INCBIN "gfx/sprites/gentleman.2bpp"
+DaisySprite:          INCBIN "gfx/sprites/daisy.2bpp"
+BikerSprite:          INCBIN "gfx/sprites/biker.2bpp"
+SailorSprite:         INCBIN "gfx/sprites/sailor.2bpp"
+CookSprite:           INCBIN "gfx/sprites/cook.2bpp"
+BikeShopGuySprite:    INCBIN "gfx/sprites/bike_shop_guy.2bpp"
+MrFujiSprite:         INCBIN "gfx/sprites/mr_fuji.2bpp"
+GiovanniSprite:       INCBIN "gfx/sprites/giovanni.2bpp"
+RocketSprite:         INCBIN "gfx/sprites/rocket.2bpp"
+MediumSprite:         INCBIN "gfx/sprites/medium.2bpp"
+WaiterSprite:         INCBIN "gfx/sprites/waiter.2bpp"
+ErikaSprite:          INCBIN "gfx/sprites/erika.2bpp"
+MomGeishaSprite:      INCBIN "gfx/sprites/mom_geisha.2bpp"
+BrunetteGirlSprite:   INCBIN "gfx/sprites/brunette_girl.2bpp"
+LanceSprite:          INCBIN "gfx/sprites/lance.2bpp"
+MomSprite:            INCBIN "gfx/sprites/mom.2bpp"
+BaldingGuySprite:     INCBIN "gfx/sprites/balding_guy.2bpp"
+YoungBoySprite:       INCBIN "gfx/sprites/young_boy.2bpp"
+GameboyKidSprite:     INCBIN "gfx/sprites/gameboy_kid.2bpp"
+ClefairySprite:       INCBIN "gfx/sprites/clefairy.2bpp"
+AgathaSprite:         INCBIN "gfx/sprites/agatha.2bpp"
+BrunoSprite:          INCBIN "gfx/sprites/bruno.2bpp"
+LoreleiSprite:        INCBIN "gfx/sprites/lorelei.2bpp"
+SeelSprite:           INCBIN "gfx/sprites/seel.2bpp"
+
+INCBIN "baserom.gbc",$17c31,$18000 - $17c31
 
 
 SECTION "bank06",ROMX,BANK[$06]
@@ -399,7 +496,17 @@ INCBIN "baserom.gbc",$3749e,$38000 - $3749e
 
 SECTION "bank0E",ROMX,BANK[$0E]
 
-INCBIN "baserom.gbc",$38000,$3c000 - $38000
+INCBIN "baserom.gbc",$38000,$3aa68 - $38000
+
+TradingAnimationGraphics:
+	INCBIN "gfx/game_boy.norepeat.2bpp"
+	INCBIN "gfx/link_cable.2bpp"
+
+TradingAnimationGraphics2:
+; Pokeball traveling through the link cable.
+	INCBIN "gfx/trade2.2bpp"
+
+INCBIN "baserom.gbc",$3adb8,$3c000 - $3adb8
 
 
 SECTION "bank0F",ROMX,BANK[$0F]
@@ -518,7 +625,11 @@ INCBIN "baserom.gbc",$6c000,$70000 - $6c000
 
 SECTION "bank1C",ROMX,BANK[$1C]
 
-INCBIN "baserom.gbc",$70000,$74000 - $70000
+INCBIN "baserom.gbc",$70000,$734b9 - $70000
+
+PokemonYellowGraphics:  INCBIN "gfx/pokemon_yellow.t6.2bpp"
+
+INCBIN "baserom.gbc",$73959,$74000 - $73959
 
 
 SECTION "bank1D",ROMX,BANK[$1D]
@@ -528,7 +639,14 @@ INCBIN "baserom.gbc",$74000,$78000 - $74000
 
 SECTION "bank1E",ROMX,BANK[$1E]
 
-INCBIN "baserom.gbc",$78000,$7c000 - $78000
+INCBIN "baserom.gbc",$78000,$7a19a - $78000
+
+RedFishingTilesFront: INCBIN "gfx/red_fishing_tile_front.2bpp"
+RedFishingTilesBack:  INCBIN "gfx/red_fishing_tile_back.2bpp"
+RedFishingTilesSide:  INCBIN "gfx/red_fishing_tile_side.2bpp"
+RedFishingRodTiles:   INCBIN "gfx/red_fishingrod_tiles.2bpp"
+
+INCBIN "baserom.gbc",$7a22a,$7c000 - $7a22a
 
 
 SECTION "bank1F",ROMX,BANK[$1F]
@@ -538,7 +656,11 @@ INCBIN "baserom.gbc",$7c000,$80000 - $7c000
 
 SECTION "bank20",ROMX,BANK[$20]
 
-INCBIN "baserom.gbc",$80000,$84000 - $80000
+INCBIN "baserom.gbc",$80000,$80f14 - $80000
+
+SurfingPikachu1Graphics:  INCBIN "gfx/surfing_pikachu_1.t4.2bpp"
+
+INCBIN "baserom.gbc",$82bd4,$84000 - $82bd4
 
 
 SECTION "bank21",ROMX,BANK[$21]
@@ -623,7 +745,15 @@ INCBIN "baserom.gbc",$e4000,$e8000 - $e4000
 
 SECTION "bank3A",ROMX,BANK[$3A]
 
-INCBIN "baserom.gbc",$e8000,$ec000 - $e8000
+INCBIN "baserom.gbc",$e8000,$e928a - $e8000
+
+SurfingPikachu2Graphics:  INCBIN "gfx/surfing_pikachu_2.2bpp"
+
+INCBIN "baserom.gbc",$e988a,$e9bfa - $e988a
+
+SurfingPikachu3Graphics:  INCBIN "gfx/surfing_pikachu_3.t1.2bpp"
+
+INCBIN "baserom.gbc",$ea3ea,$ec000 - $ea3ea
 
 
 SECTION "bank3C",ROMX,BANK[$3C]
@@ -639,17 +769,45 @@ RedPicBack::           INCBIN "pic/trainer/redb.pic"
 OldManPic::            INCBIN "pic/trainer/oldman.pic"
 OakPicBack::           INCBIN "pic/ytrainer/prof.oakb.pic"
 
-INCBIN "baserom.gbc",$f453f,$f8000 - $f453f
+INCBIN "baserom.gbc",$f453f,$f46fb - $f453f
+
+PokemonLogoGraphics:             INCBIN "gfx/pokemon_logo.2bpp"
+YellowLogoGraphics:              INCBIN "gfx/yellow_titlescreen.2bpp"
+
+INCBIN "baserom.gbc",$f531b,$f5c24 - $f531b
+
+TrainerInfoTextBoxTileGraphics:  INCBIN "gfx/trainer_info.2bpp"
+BlankLeaderNames:                INCBIN "gfx/blank_leader_names.2bpp"
+CircleTile:                      INCBIN "gfx/circle_tile.2bpp"
+BadgeNumbersTileGraphics:        INCBIN "gfx/badge_numbers.2bpp"
+
+INCBIN "baserom.gbc",$f5ea4,$f8000 - $f5ea4
 
 
 SECTION "bank3E",ROMX,BANK[$3E]
 
-INCBIN "baserom.gbc",$f8000,$fc000 - $f8000
+INCBIN "baserom.gbc",$f8000,$fa35a - $f8000
+
+YellowIntroGraphics:  INCBIN "gfx/yellow_intro.2bpp"
+
+INCBIN "baserom.gbc",$fbb5a,$fc000 - $fbb5a
 
 
 SECTION "bank3F",ROMX,BANK[$3F]
 
-INCBIN "baserom.gbc",$fc000,$100000 - $fc000
+INCBIN "baserom.gbc",$fc000,$fe66f - $fc000
+
+OfficerJennySprite:    INCBIN "gfx/sprites/officer_jenny.2bpp"
+PikachuSprite:         INCBIN "gfx/sprites/pikachu.2bpp"
+SandshrewSprite:       INCBIN "gfx/sprites/sandshrew.2bpp"
+OddishSprite:          INCBIN "gfx/sprites/oddish.2bpp"
+BulbasaurSprite:       INCBIN "gfx/sprites/bulbasaur.2bpp"
+JigglypuffSprite:      INCBIN "gfx/sprites/jigglypuff.2bpp"
+Clefairy2Sprite:       INCBIN "gfx/sprites/clefairy2.2bpp"
+ChanseySprite:         INCBIN "gfx/sprites/chansey.2bpp"
+SurfingPikachuSprite:  INCBIN "gfx/sprites/surfing_pikachu.2bpp"
+JessieSprite:          INCBIN "gfx/sprites/jessie.2bpp"
+JamesSprite:           INCBIN "gfx/sprites/james.2bpp"
 
 
 ;IF DEF(_OPTION_BEACH_HOUSE)
