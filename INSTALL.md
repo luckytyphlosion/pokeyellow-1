@@ -8,17 +8,12 @@
 	sudo make install
 	cd ..
 
-	git clone --recursive git://github.com/iimarckus/pokered.git
-	cd pokered
+	git clone --recursive git://github.com/dannye/pokeyellow.git
+	cd pokeyellow
 
-To build **pokered.gbc** and **pokeblue.gbc**:
+To build **pokeyellow.gbc**:
 
 	make
-
-To build them individually:
-
-	make red
-	make blue
 
 
 # Mac
@@ -33,8 +28,8 @@ In the shell, run:
 	sudo make install
 	cd ..
 
-	git clone --recursive git://github.com/iimarckus/pokered.git
-	cd pokered
+	git clone --recursive git://github.com/dannye/pokeyellow.git
+	cd pokeyellow
 
 	make
 
@@ -51,7 +46,7 @@ Put `rgbasm.exe`, `rgblink.exe` and `rgbfix.exe` in `C:\cygwin\usr\local\bin`.
 In the **Cygwin terminal**:
 
 	easy_install pypng
-	git clone --recursive git://github.com/iimarckus/pokered.git
-	cd pokered
+	git clone --recursive git://github.com/dannye/pokeyellow.git
+	cd pokeyellow
 
 	make
