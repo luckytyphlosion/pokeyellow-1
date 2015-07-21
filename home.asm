@@ -154,7 +154,7 @@ LoadDestinationWarpPosition:: ; 1313 (0:1313)
 	push af
 	ld a,[wPredefParentBank]
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ld a,b
 	add a
 	add a
@@ -166,7 +166,7 @@ LoadDestinationWarpPosition:: ; 1313 (0:1313)
 	call CopyData
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 
@@ -243,7 +243,7 @@ DrawHPBar:: ; 1336 (0:1336)
 ; loads base stats to W_MONHDEXNUM
 ; INPUT:
 ; [wWhichPokemon] = index of pokemon within party/box
-; [wcc49] = source
+; [wMonDataLocation] = source
 ; 00: player's party
 ; 01: enemy's party
 ; 02: current box
@@ -253,12 +253,10 @@ DrawHPBar:: ; 1336 (0:1336)
 ; wLoadedMon = base address of pokemon data
 ; W_MONHDEXNUM = base address of base stats
 LoadMonData:: ; 1372 (0:1372)
-	ld hl, LoadMonData_
-	ld b, BANK(LoadMonData_)
-	jp Bankswitch
+	jpab LoadMonData_
 
 
-Func_137a:: ; 137a (0:137a)
+OverwritewMoves:: ; 137a (0:137a)
 ; Write c to [wMoves + b]. Unused.
 	ld hl, wMoves
 	ld e, b
@@ -299,17 +297,17 @@ LoadFrontSpriteByMonIndex:: ; 1389 (0:1389)
 	pop hl
 	ld a, [H_LOADEDROMBANK]
 	push af
-	ld a, Bank(asm_3f0d0)
+	ld a, Bank(CopyUncompressedPicToHL)
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	xor a
 	ld [$ffe1], a
-	call asm_3f0d0
+	call CopyUncompressedPicToHL
 	xor a
 	ld [W_SPRITEFLIPPED], a
 	pop af
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ret
 
 
@@ -376,15 +374,15 @@ PartyMenuInit:: ; 1420 (0:1420)
 	call LoadHpBarAndStatusTilePatterns
 	ld hl, wd730
 	set 6, [hl] ; turn off letter printing delay
-	xor a
-	ld [wcc49], a
-	ld [wcc37], a
+	xor a ; PLAYER_PARTY_DATA
+	ld [wMonDataLocation], a
+	ld [wMenuWatchMovingOutOfBounds], a
 	ld hl, wTopMenuItemY
 	inc a
 	ld [hli], a ; top menu item Y
 	xor a
 	ld [hli], a ; top menu item X
-	ld a, [wcc2b]
+	ld a, [wPartyAndBillsPCSavedMenuItem]
 	push af
 	ld [hli], a ; current menu item ID
 	inc hl
@@ -420,7 +418,7 @@ HandlePartyMenuInput:: ; 145a (0:145a)
 	xor a
 	ld [wd09b],a
 	ld a,[wCurrentMenuItem]
-	ld [wcc2b],a
+	ld [wPartyAndBillsPCSavedMenuItem],a
 	ld hl,wd730
 	res 6,[hl] ; turn on letter printing delay
 	ld a,[wMenuItemToSwap]
@@ -456,7 +454,7 @@ HandlePartyMenuInput:: ; 145a (0:145a)
 	callba ErasePartyMenuCursors
 	xor a
 	ld [wMenuItemToSwap],a
-	ld [wd07d],a
+	ld [wPartyMenuTypeOrMessageID],a
 	call RedrawPartyMenu
 	jr HandlePartyMenuInput
 .handleSwap
@@ -499,17 +497,17 @@ PrintStatusCondition:: ; 14e1 (0:14e1)
 	ld [hl],"T"
 	and a
 	ret
-PrintStatusConditionNotFainted ; 14f6
+PrintStatusConditionNotFainted: ; 14f6
 	ld a,[H_LOADEDROMBANK]
 	push af
 	ld a,BANK(PrintStatusAilment)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call PrintStatusAilment ; print status condition
 	pop bc
 	ld a,b
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; function to print pokemon level, leaving off the ":L" if the level is at least 100
@@ -544,8 +542,8 @@ PrintLevelCommon:: ; 1523 (0:1523)
 	ld b,$41 ; no leading zeroes, left-aligned, one byte
 	jp PrintNumber
 
-Func_152e:: ; 152e (0:152e)
-; Unused.
+GetwMoves:: ; 152e (0:152e)
+; Unused. Returns the move at index a from wMoves in a
 	ld hl,wMoves
 	ld c,a
 	ld b,0
@@ -561,7 +559,7 @@ GetMonHeader:: ; 1537 (0:1537)
 	push af
 	ld a,BANK(BaseStats)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	push bc
 	push de
 	push hl
@@ -616,7 +614,7 @@ GetMonHeader:: ; 1537 (0:1537)
 	pop bc
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; copy party pokemon's name to wcd6d
@@ -800,7 +798,7 @@ LoadUncompressedSpriteData:: ; 1672 (0:1672)
 	add a
 	add a
 	add a     ; 8*tiles is height in bytes
-	ld [H_SPRITEHEIGHT], a ; $ff8c
+	ld [H_SPRITEHEIGHT], a
 	ld a, $7
 	sub b      ; 7-h         ; skip for vertical center (in tiles, relative to current column)
 	ld b, a
@@ -832,11 +830,11 @@ AlignSpriteDataCentered:: ; 16c2 (0:16c2)
 	ld b, $0
 	ld c, a
 	add hl, bc
-	ld a, [H_SPRITEWIDTH] ; $ff8b
+	ld a, [H_SPRITEWIDTH]
 .columnLoop
 	push af
 	push hl
-	ld a, [H_SPRITEHEIGHT] ; $ff8c
+	ld a, [H_SPRITEHEIGHT]
 	ld c, a
 .columnInnerLoop
 	ld a, [de]
@@ -875,7 +873,7 @@ InterlaceMergeSpriteBuffers:: ; 16ea (0:16ea)
 	ld de, S_SPRITEBUFFER1 + (SPRITEBUFFERSIZE - 1) ; source 2: end of buffer 1
 	ld bc, S_SPRITEBUFFER0 + (SPRITEBUFFERSIZE - 1) ; source 1: end of buffer 0
 	ld a, SPRITEBUFFERSIZE/2 ; $c4
-	ld [H_SPRITEINTERLACECOUNTER], a ; $ff8b
+	ld [H_SPRITEINTERLACECOUNTER], a
 .interlaceLoop
 	ld a, [de]
 	dec de
@@ -889,9 +887,9 @@ InterlaceMergeSpriteBuffers:: ; 16ea (0:16ea)
 	ld a, [bc]
 	dec bc
 	ld [hld], a   ; write byte of source 1
-	ld a, [H_SPRITEINTERLACECOUNTER] ; $ff8b
+	ld a, [H_SPRITEINTERLACECOUNTER]
 	dec a
-	ld [H_SPRITEINTERLACECOUNTER], a ; $ff8b
+	ld [H_SPRITEINTERLACECOUNTER], a
 	jr nz, .interlaceLoop
 	ld a, [W_SPRITEFLIPPED]
 	and a
@@ -934,11 +932,11 @@ UpdateSprites:: ; 2429 (0:2429)
 	push af
 	ld a, Bank(_UpdateSprites)
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	call _UpdateSprites
 	pop af
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ret
 
 INCLUDE "data/mart_inventories.asm"
@@ -969,10 +967,10 @@ PokeCenterSignText:: ; 24ef (0:24ef)
 	TX_FAR _PokeCenterSignText
 	db "@"
 
-Predef5CText:: ; 24f4 (0:24f4)
+PickUpItemText:: ; 24f4 (0:24f4)
 ; XXX better label (what does predef $5C do?)
-	db $08 ; asm
-	predef PickupItem
+	TX_ASM
+	predef PickUpItem
 	jp TextScriptEnd
 
 
@@ -1050,12 +1048,12 @@ Func_28cb:: ; 28cb (0:28cb)
 	jp PlaySound
 
 ; this function is used to display sign messages, sprite dialog, etc.
-; INPUT: [$ff8c] = sprite ID or text ID
+; INPUT: [hSpriteIndexOrTextID] = sprite ID or text ID
 DisplayTextID:: ; 2920 (0:2920)
 	ld a,[H_LOADEDROMBANK]
 	push af
 	callba DisplayTextIDInit ; initialization
-	ld hl,wcf11
+	ld hl,wTextPredefFlag
 	bit 0,[hl]
 	res 0,[hl]
 	jr nz,.skipSwitchToMapBank
@@ -1069,7 +1067,7 @@ DisplayTextID:: ; 2920 (0:2920)
 	ld h,[hl]
 	ld l,a ; hl = map text pointer
 	ld d,$00
-	ld a,[$ff8c] ; text ID
+	ld a,[hSpriteIndexOrTextID] ; text ID
 	ld [wSpriteIndex],a
 	and a
 	jp z,DisplayStartMenu
@@ -1083,7 +1081,7 @@ DisplayTextID:: ; 2920 (0:2920)
 	jp z,DisplayRepelWoreOffText
 	ld a,[W_NUMSPRITES]
 	ld e,a
-	ld a,[$ff8c] ; sprite ID
+	ld a,[hSpriteIndexOrTextID] ; sprite ID
 	cp e
 	jr z,.spriteHandling
 	jr nc,.skipSpriteHandling
@@ -1096,7 +1094,7 @@ DisplayTextID:: ; 2920 (0:2920)
 	pop bc
 	pop de
 	ld hl,W_MAPSPRITEDATA ; NPC text entries
-	ld a,[$ff8c]
+	ld a,[hSpriteIndexOrTextID]
 	dec a
 	add a
 	add l
@@ -1130,7 +1128,7 @@ DisplayTextID:: ; 2920 (0:2920)
 	jp z,FuncTX_PokemonCenterPC
 	cp a,$f5   ; Vending Machine
 	jr nz,.notVendingMachine
-	callba VendingMachineMenu 	; jump banks to vending machine routine
+	callba VendingMachineMenu ; jump banks to vending machine routine
 	jr AfterDisplayingTextID
 .notVendingMachine
 	cp a,$f7   ; slot machine
@@ -1140,7 +1138,7 @@ DisplayTextID:: ; 2920 (0:2920)
 	callab CableClubNPC
 	jr AfterDisplayingTextID
 .notSpecialCase
-	call Func_3c59 ; display the text
+	call PrintText_NoCreatingTextBox ; display the text
 	ld a,[wDoNotWaitForButtonPressAfterDisplayingText]
 	and a
 	jr nz,HoldTextDisplayOpen
@@ -1181,7 +1179,7 @@ CloseTextDisplay:: ; 29e8 (0:29e8)
 	jr nz,.restoreSpriteFacingDirectionLoop
 	ld a,BANK(InitMapSprites)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call InitMapSprites ; reload sprite tile pattern data (since it was partially overwritten by text tile patterns)
 	ld hl,wFontLoaded
 	res 0,[hl]
@@ -1191,7 +1189,7 @@ CloseTextDisplay:: ; 29e8 (0:29e8)
 	call LoadCurrentMapView
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	jp UpdateSprites
 
 DisplayPokemartDialogue:: ; 2a2e (0:2a2e)
@@ -1201,17 +1199,17 @@ DisplayPokemartDialogue:: ; 2a2e (0:2a2e)
 	pop hl
 	inc hl
 	call LoadItemList
-	ld a,$02
-	ld [wListMenuID],a ; selects between subtypes of menus
+	ld a,PRICEDITEMLISTMENU
+	ld [wListMenuID],a
 	ld a,[H_LOADEDROMBANK]
 	push af
 	ld a,Bank(DisplayPokemartDialogue_)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call DisplayPokemartDialogue_
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	jp AfterDisplayingTextID
 
 PokemartGreetingText:: ; 2a55 (0:2a55)
@@ -1219,13 +1217,13 @@ PokemartGreetingText:: ; 2a55 (0:2a55)
 	db "@"
 
 LoadItemList:: ; 2a5a (0:2a5a)
-	ld a,$01
+	ld a,1
 	ld [wUpdateSpritesEnabled],a
 	ld a,h
-	ld [wd128],a
+	ld [wItemListPointer],a
 	ld a,l
-	ld [wd129],a
-	ld de,wStringBuffer2 + 11
+	ld [wItemListPointer + 1],a
+	ld de,wItemList
 .loop
 	ld a,[hli]
 	ld [de],a
@@ -1235,20 +1233,22 @@ LoadItemList:: ; 2a5a (0:2a5a)
 	ret
 
 DisplayPokemonCenterDialogue:: ; 2a72 (0:2a72)
+; zeroing these doesn't appear to serve any purpose
 	xor a
 	ld [$ff8b],a
 	ld [$ff8c],a
 	ld [$ff8d],a
+
 	inc hl
 	ld a,[H_LOADEDROMBANK]
 	push af
 	ld a,Bank(DisplayPokemonCenterDialogue_)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call DisplayPokemonCenterDialogue_
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	jp AfterDisplayingTextID
 
 DisplaySafariGameOverText:: ; 2a90 (0:2a90)
@@ -1315,9 +1315,7 @@ CountSetBits:: ; 2b7f (0:2b7f)
 ; subtracts the amount the player paid from their money
 ; sets carry flag if there is enough money and unsets carry flag if not
 SubtractAmountPaidFromMoney:: ; 2b96 (0:2b96)
-	ld b,BANK(SubtractAmountPaidFromMoney_)
-	ld hl,SubtractAmountPaidFromMoney_
-	jp Bankswitch
+	jpba SubtractAmountPaidFromMoney_
 
 ; adds the amount the player sold to their money
 AddAmountSoldToMoney:: ; 2b9e (0:2b9e)
@@ -1328,32 +1326,32 @@ AddAmountSoldToMoney:: ; 2b9e (0:2b9e)
 	ld a,MONEY_BOX
 	ld [wTextBoxID],a
 	call DisplayTextBoxID ; redraw money text box
-	ld a, (SFX_02_5a - SFX_Headers_02) / 3
-	call PlaySoundWaitForCurrent ; play sound
-	jp WaitForSoundToFinish ; wait until sound is done playing
+	ld a, SFX_PURCHASE
+	call PlaySoundWaitForCurrent
+	jp WaitForSoundToFinish
 
 ; function to remove an item (in varying quantities) from the player's bag or PC box
 ; INPUT:
 ; HL = address of inventory (either wNumBagItems or wNumBoxItems)
 ; [wWhichPokemon] = index (within the inventory) of the item to remove
-; [wcf96] = quantity to remove
+; [wItemQuantity] = quantity to remove
 RemoveItemFromInventory:: ; 2bbb (0:2bbb)
 	ld a,[H_LOADEDROMBANK]
 	push af
 	ld a,BANK(RemoveItemFromInventory_)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call RemoveItemFromInventory_
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; function to add an item (in varying quantities) to the player's bag or PC box
 ; INPUT:
 ; HL = address of inventory (either wNumBagItems or wNumBoxItems)
 ; [wcf91] = item ID
-; [wcf96] = item quantity
+; [wItemQuantity] = item quantity
 ; sets carry flag if successful, unsets carry flag if unsuccessful
 AddItemToInventory:: ; 2bcf (0:2bcf)
 	push bc
@@ -1361,18 +1359,18 @@ AddItemToInventory:: ; 2bcf (0:2bcf)
 	push af
 	ld a,BANK(AddItemToInventory_)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call AddItemToInventory_
 	pop bc
 	ld a,b
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	pop bc
 	ret
 
 ; INPUT:
 ; [wListMenuID] = list menu ID
-; [wList] = address of the list (2 bytes)
+; [wListPointer] = address of the list (2 bytes)
 DisplayListMenuID:: ; 2be6 (0:2be6)
 	xor a
 	ld [H_AUTOBGTRANSFERENABLED],a ; disable auto-transfer
@@ -1391,28 +1389,28 @@ DisplayListMenuID:: ; 2be6 (0:2be6)
 	set 6,[hl] ; turn off letter printing delay
 	xor a
 	ld [wMenuItemToSwap],a ; 0 means no item is currently being swapped
-	ld [wd12a],a
-	ld a,[wList]
+	ld [wListCount],a
+	ld a,[wListPointer]
 	ld l,a
-	ld a,[wList + 1]
+	ld a,[wListPointer + 1]
 	ld h,a ; hl = address of the list
-	ld a,[hl]
-	ld [wd12a],a ; [wd12a] = number of list entries
+	ld a,[hl] ; the first byte is the number of entries in the list
+	ld [wListCount],a
 	ld a,LIST_MENU_BOX
 	ld [wTextBoxID],a
 	call DisplayTextBoxID ; draw the menu text box
 	call UpdateSprites ; disable sprites behind the text box
 ; the code up to .skipMovingSprites appears to be useless
-	hlCoord 4, 2 ; coordinates of upper left corner of menu text box
+	coord hl, 4, 2 ; coordinates of upper left corner of menu text box
 	ld de,$090e ; height and width of menu text box
 	ld a,[wListMenuID]
 	and a ; is it a PC pokemon list?
 	jr nz,.skipMovingSprites
-	call UpdateSprites ; move sprites
+	call UpdateSprites
 .skipMovingSprites
 	ld a,1 ; max menu item ID is 1 if the list has less than 2 entries
-	ld [wcc37],a
-	ld a,[wd12a]
+	ld [wMenuWatchMovingOutOfBounds],a
+	ld a,[wListCount]
 	cp a,2 ; does the list have less than 2 entries?
 	jr c,.setMenuVariables
 	ld a,2 ; max menu item ID is 2 if the list has at least 2 entries
@@ -1444,7 +1442,7 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 	call DelayFrames
 	xor a
 	ld [wCurrentMenuItem],a
-	hlCoord 5, 4
+	coord hl, 5, 4
 	ld a,l
 	ld [wMenuCursorLocation],a
 	ld a,h
@@ -1461,17 +1459,20 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 .buttonAPressed
 	ld a,[wCurrentMenuItem]
 	call PlaceUnfilledArrowMenuCursor
+
+; pointless because both values are overwritten before they are read
 	ld a,$01
-	ld [wd12e],a
-	ld [wd12d],a
+	ld [wMenuExitMethod],a
+	ld [wChosenMenuItem],a 
+
 	xor a
-	ld [wcc37],a
+	ld [wMenuWatchMovingOutOfBounds],a
 	ld a,[wCurrentMenuItem]
 	ld c,a
 	ld a,[wListScrollOffset]
 	add c
 	ld c,a
-	ld a,[wd12a] ; number of list entries
+	ld a,[wListCount]
 	and a ; is the list empty?
 	jp z,ExitListMenu ; if so, exit the menu
 	dec a
@@ -1485,9 +1486,9 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 ; if it's an item menu
 	sla c ; item entries are 2 bytes long, so multiply by 2
 .skipMultiplying
-	ld a,[wList]
+	ld a,[wListPointer]
 	ld l,a
-	ld a,[wList + 1]
+	ld a,[wListPointer + 1]
 	ld h,a
 	inc hl ; hl = beginning of list entries
 	ld b,0
@@ -1506,7 +1507,7 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 ; if it's an item menu
 	inc hl
 	ld a,[hl] ; a = item quantity
-	ld [wcf97],a
+	ld [wMaxItemQuantity],a
 .skipGettingQuantity
 	ld a,[wcf91]
 	ld [wd0b5],a
@@ -1516,7 +1517,7 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 	jr .storeChosenEntry
 .pokemonList
 	ld hl,wPartyCount
-	ld a,[wList]
+	ld a,[wListPointer]
 	cp l ; is it a list of party pokemon or box pokemon?
 	ld hl,wPartyMonNicks
 	jr z,.getPokemonName
@@ -1527,10 +1528,10 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 .storeChosenEntry ; store the menu entry that the player chose and return
 	ld de,wcd6d
 	call CopyStringToCF4B ; copy name to wcf4b
-	ld a,$01
-	ld [wd12e],a
+	ld a,CHOSE_MENU_ITEM
+	ld [wMenuExitMethod],a
 	ld a,[wCurrentMenuItem]
-	ld [wd12d],a
+	ld [wChosenMenuItem],a
 	xor a
 	ld [hJoy7],a ; joypad state update flag
 	ld hl,wd730
@@ -1549,7 +1550,7 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 	ld a,[hl]
 	add a,3
 	ld b,a
-	ld a,[wd12a] ; number of list entries
+	ld a,[wListCount]
 	cp b ; will going down scroll past the Cancel button?
 	jp c,DisplayListMenuIDLoop
 	inc [hl] ; if not, go down
@@ -1563,28 +1564,28 @@ DisplayListMenuIDLoop:: ; 2c53 (0:2c53)
 
 DisplayChooseQuantityMenu:: ; 2d57 (0:2d57)
 ; text box dimensions/coordinates for just quantity
-	hlCoord 15, 9
+	coord hl, 15, 9
 	ld b,1 ; height
 	ld c,3 ; width
 	ld a,[wListMenuID]
 	cp a,PRICEDITEMLISTMENU
 	jr nz,.drawTextBox
 ; text box dimensions/coordinates for quantity and price
-	hlCoord 7, 9
+	coord hl, 7, 9
 	ld b,1  ; height
 	ld c,11 ; width
 .drawTextBox
 	call TextBoxBorder
-	hlCoord 16, 10
+	coord hl, 16, 10
 	ld a,[wListMenuID]
 	cp a,PRICEDITEMLISTMENU
 	jr nz,.printInitialQuantity
-	hlCoord 8, 10
+	coord hl, 8, 10
 .printInitialQuantity
 	ld de,InitialQuantityText
 	call PlaceString
 	xor a
-	ld [wcf96],a ; initialize current quantity to 0
+	ld [wItemQuantity],a ; initialize current quantity to 0
 	jp .incrementQuantity
 .waitForKeyPressLoop
 	call JoypadLowSensitivity
@@ -1599,10 +1600,10 @@ DisplayChooseQuantityMenu:: ; 2d57 (0:2d57)
 	jr nz,.decrementQuantity
 	jr .waitForKeyPressLoop
 .incrementQuantity
-	ld a,[wcf97] ; max quantity
+	ld a,[wMaxItemQuantity]
 	inc a
 	ld b,a
-	ld hl,wcf96 ; current quantity
+	ld hl,wItemQuantity ; current quantity
 	inc [hl]
 	ld a,[hl]
 	cp b
@@ -1612,61 +1613,61 @@ DisplayChooseQuantityMenu:: ; 2d57 (0:2d57)
 	ld [hl],a
 	jr .handleNewQuantity
 .decrementQuantity
-	ld hl,wcf96 ; current quantity
+	ld hl,wItemQuantity ; current quantity
 	dec [hl]
 	jr nz,.handleNewQuantity
 ; wrap to the max quantity if the player goes below 1
-	ld a,[wcf97] ; max quantity
+	ld a,[wMaxItemQuantity]
 	ld [hl],a
 .handleNewQuantity
-	hlCoord 17, 10
+	coord hl, 17, 10
 	ld a,[wListMenuID]
 	cp a,PRICEDITEMLISTMENU
 	jr nz,.printQuantity
 .printPrice
 	ld c,$03
-	ld a,[wcf96]
+	ld a,[wItemQuantity]
 	ld b,a
-	ld hl,$ff9f ; total price
+	ld hl,hMoney ; total price
 ; initialize total price to 0
 	xor a
 	ld [hli],a
 	ld [hli],a
 	ld [hl],a
 .addLoop ; loop to multiply the individual price by the quantity to get the total price
-	ld de,$ffa1
-	ld hl,$ff8d
+	ld de,hMoney + 2
+	ld hl,hItemPrice + 2
 	push bc
 	predef AddBCDPredef ; add the individual price to the current sum
 	pop bc
 	dec b
 	jr nz,.addLoop
-	ld a,[$ff8e]
+	ld a,[hHalveItemPrices]
 	and a ; should the price be halved (for selling items)?
 	jr z,.skipHalvingPrice
 	xor a
-	ld [$ffa2],a
-	ld [$ffa3],a
+	ld [hDivideBCDDivisor],a
+	ld [hDivideBCDDivisor + 1],a
 	ld a,$02
-	ld [$ffa4],a
+	ld [hDivideBCDDivisor + 2],a
 	predef DivideBCDPredef3 ; halves the price
 ; store the halved price
-	ld a,[$ffa2]
-	ld [$ff9f],a
-	ld a,[$ffa3]
-	ld [$ffa0],a
-	ld a,[$ffa4]
-	ld [$ffa1],a
+	ld a,[hDivideBCDQuotient]
+	ld [hMoney],a
+	ld a,[hDivideBCDQuotient + 1]
+	ld [hMoney + 1],a
+	ld a,[hDivideBCDQuotient + 2]
+	ld [hMoney + 2],a
 .skipHalvingPrice
-	hlCoord 12, 10
+	coord hl, 12, 10
 	ld de,SpacesBetweenQuantityAndPriceText
 	call PlaceString
-	ld de,$ff9f ; total price
+	ld de,hMoney ; total price
 	ld c,$a3
 	call PrintBCDNumber
-	hlCoord 9, 10
+	coord hl, 9, 10
 .printQuantity
-	ld de,wcf96 ; current quantity
+	ld de,wItemQuantity ; current quantity
 	ld bc,$8102 ; print leading zeroes, 1 byte, 2 digits
 	call PrintNumber
 	jp .waitForKeyPressLoop
@@ -1688,10 +1689,10 @@ SpacesBetweenQuantityAndPriceText:: ; 2e34 (0:2e34)
 
 ExitListMenu:: ; 2e3b (0:2e3b)
 	ld a,[wCurrentMenuItem]
-	ld [wd12d],a
-	ld a,$02
-	ld [wd12e],a
-	ld [wcc37],a
+	ld [wChosenMenuItem],a
+	ld a,CANCELLED_MENU
+	ld [wMenuExitMethod],a
+	ld [wMenuWatchMovingOutOfBounds],a
 	xor a
 	ld [hJoy7],a
 	ld hl,wd730
@@ -1703,13 +1704,13 @@ ExitListMenu:: ; 2e3b (0:2e3b)
 	ret
 
 PrintListMenuEntries:: ; 2e5a (0:2e5a)
-	hlCoord 5, 3
+	coord hl, 5, 3
 	ld b,$09
 	ld c,$0e
 	call ClearScreenArea
-	ld a,[wList]
+	ld a,[wListPointer]
 	ld e,a
-	ld a,[wList + 1]
+	ld a,[wListPointer + 1]
 	ld d,a
 	inc de ; de = beginning of list entries
 	ld a,[wListScrollOffset]
@@ -1728,7 +1729,7 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 	jr nc,.noCarry
 	inc d
 .noCarry
-	hlCoord 6, 4 ; coordinates of first list entry name
+	coord hl, 6, 4 ; coordinates of first list entry name
 	ld b,4 ; print 4 names
 .loop
 	ld a,b
@@ -1753,7 +1754,7 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 .pokemonPCMenu
 	push hl
 	ld hl,wPartyCount
-	ld a,[wList]
+	ld a,[wListPointer]
 	cp l ; is it a list of party pokemon or box pokemon?
 	ld hl,wPartyMonNicks
 	jr z,.getPokemonName
@@ -1775,7 +1776,7 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 	call PlaceString
 	pop de
 	pop hl
-	ld a,[wcf93]
+	ld a,[wPrintItemPrices]
 	and a ; should prices be printed?
 	jr z,.skipPrintingItemPrice
 .printItemPrice
@@ -1798,13 +1799,13 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 	push af
 	push hl
 	ld hl,wPartyCount
-	ld a,[wList]
+	ld a,[wListPointer]
 	cp l ; is it a list of party pokemon or box pokemon?
-	ld a,$00
+	ld a,PLAYER_PARTY_DATA
 	jr z,.next
-	ld a,$02
+	ld a,BOX_DATA
 .next
-	ld [wcc49],a
+	ld [wMonDataLocation],a
 	ld hl,wWhichPokemon
 	ld a,[hl]
 	ld b,a
@@ -1815,7 +1816,7 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 	add b
 	ld [hl],a
 	call LoadMonData ; load pokemon info
-	ld a,[wcc49]
+	ld a,[wMonDataLocation]
 	and a ; is it a list of party pokemon or box pokemon?
 	jr z,.skipCopyingLevel
 .copyLevel
@@ -1839,7 +1840,7 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 	ld a,[wd11e]
 	ld [wcf91],a
 	call IsKeyItem ; check if item is unsellable
-	ld a,[wd124]
+	ld a,[wIsKeyItem]
 	and a ; is the item unsellable?
 	jr nz,.skipPrintingItemQuantity ; if so, don't print the quantity
 	push hl
@@ -1850,7 +1851,7 @@ PrintListMenuEntries:: ; 2e5a (0:2e5a)
 	ld a,[wd11e]
 	push af
 	ld a,[de]
-	ld [wcf97],a
+	ld [wMaxItemQuantity],a
 	push de
 	ld de,wd11e
 	ld [de],a
@@ -1900,7 +1901,7 @@ GetMonName:: ; 2f9e (0:2f9e)
 	push af
 	ld a,BANK(MonsterNames) ; 07
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ld a,[wd11e]
 	dec a
 	ld hl,MonsterNames ; 421E
@@ -1911,12 +1912,12 @@ GetMonName:: ; 2f9e (0:2f9e)
 	push de
 	ld bc,10
 	call CopyData
-	ld hl,wcd77
+	ld hl,wcd6d + 10
 	ld [hl], "@"
 	pop de
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	pop hl
 	ret
 
@@ -2051,7 +2052,7 @@ ReloadMapData:: ; 3071 (0:3071)
 	call EnableLCD
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; reloads tileset tile patterns
@@ -2065,16 +2066,14 @@ ReloadTilesetTilePatterns:: ; 3090 (0:3090)
 	call EnableLCD
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; shows the town map and lets the player choose a destination to fly to
 ChooseFlyDestination:: ; 30a9 (0:30a9)
 	ld hl,wd72e
 	res 4,[hl]
-	ld b, BANK(LoadTownMap_Fly)
-	ld hl, LoadTownMap_Fly
-	jp Bankswitch
+	jpba LoadTownMap_Fly
 
 ; causes the text box to close without waiting for a button press after displaying text
 DisableWaitingAfterTextDisplay:: ; 30b6 (0:30b6)
@@ -2087,21 +2086,19 @@ DisableWaitingAfterTextDisplay:: ; 30b6 (0:30b6)
 ; INPUT:
 ; [wcf91] = item ID
 ; OUTPUT:
-; [wcd6a] = success
+; [wActionResultOrTookBattleTurn] = success
 ; 00: unsucessful
 ; 01: successful
 ; 02: not able to be used right now, no extra menu displayed (only certain items use this)
 UseItem:: ; 30bc (0:30bc)
-	ld b,BANK(UseItem_)
-	ld hl,UseItem_
-	jp Bankswitch
+	jpba UseItem_
 
 ; confirms the item toss and then tosses the item
 ; INPUT:
 ; hl = address of inventory (either wNumBagItems or wNumBoxItems)
 ; [wcf91] = item ID
 ; [wWhichPokemon] = index of item within inventory
-; [wcf96] = quantity to toss
+; [wItemQuantity] = quantity to toss
 ; OUTPUT:
 ; clears carry flag if the item is tossed, sets carry flag if not
 TossItem:: ; 30c4 (0:30c4)
@@ -2109,19 +2106,19 @@ TossItem:: ; 30c4 (0:30c4)
 	push af
 	ld a,BANK(TossItem_)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call TossItem_
 	pop de
 	ld a,d
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; checks if an item is a key item
 ; INPUT:
 ; [wcf91] = item ID
 ; OUTPUT:
-; [wd124] = result
+; [wIsKeyItem] = result
 ; 00: item is not key item
 ; 01: item is key item
 IsKeyItem:: ; 30d9 (0:30d9)
@@ -2142,12 +2139,12 @@ DisplayTextBoxID:: ; 30e8 (0:30e8)
 	push af
 	ld a,BANK(DisplayTextBoxID_)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call DisplayTextBoxID_
 	pop bc
 	ld a,b
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; not zero if an NPC movement script is running, the player character is
@@ -2184,26 +2181,22 @@ RunNPCMovementScript:: ; 310e (0:310e)
 	push af
 	ld a, [wNPCMovementScriptBank]
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ld a, [wNPCMovementScriptFunctionNum]
 	call CallFunctionInTable
 	pop af
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ret
 .NPCMovementScriptPointerTables
-	dw ProfOakMovementScriptPointerTable
+	dw PalletMovementScriptPointerTable
 	dw PewterMuseumGuyMovementScriptPointerTable
 	dw PewterGymGuyMovementScriptPointerTable
 .playerStepOutFromDoor
-	ld b, BANK(PlayerStepOutFromDoor)
-	ld hl, PlayerStepOutFromDoor
-	jp Bankswitch
+	jpba PlayerStepOutFromDoor
 
 EndNPCMovementScript:: ; 314e (0:314e)
-	ld b, BANK(_EndNPCMovementScript)
-	ld hl, _EndNPCMovementScript
-	jp Bankswitch
+	jpba _EndNPCMovementScript
 
 EmptyFunc2:: ; 3156 (0:3156)
 	ret
@@ -2304,7 +2297,7 @@ TalkToTrainer:: ; 31cc (0:31cc)
 	call ReadTrainerHeaderInfo     ; read flag's byte ptr
 	ld a, [wTrainerHeaderFlagBit]
 	ld c, a
-	ld b, $2
+	ld b, FLAG_TEST
 	call TrainerFlagAction      ; read trainer's flag
 	ld a, c
 	and a
@@ -2312,7 +2305,7 @@ TalkToTrainer:: ; 31cc (0:31cc)
 	ld a, $6
 	call ReadTrainerHeaderInfo     ; print after battle text
 	jp PrintText
-.trainerNotYetFought ; 0x31ed
+.trainerNotYetFought
 	ld a, $4
 	call ReadTrainerHeaderInfo     ; print before battle text
 	call PrintText
@@ -2347,14 +2340,14 @@ CheckFightingMapTrainers:: ; 3219 (0:3219)
 .trainerEngaging
 	ld hl, W_FLAGS_D733
 	set 3, [hl]
-	ld [wcd4f], a
-	xor a
-	ld [wcd50], a
+	ld [wEmotionBubbleSpriteIndex], a
+	xor a ; EXCLAMATION_BUBBLE
+	ld [wWhichEmotionBubble], a
 	predef EmotionBubble
 	ld a, D_RIGHT | D_LEFT | D_UP | D_DOWN
 	ld [wJoyIgnore], a
 	xor a
-	ldh [$b4], a
+	ld [hJoyHeld], a
 	call TrainerWalkUpToPlayer_Bank0
 	ld hl, W_CURMAPSCRIPT
 	inc [hl]      ; increment map script index (next script function is usually DisplayEnemyTrainerTextAndStartBattle)
@@ -2392,14 +2385,14 @@ EndTrainerBattle:: ; 3275 (0:3275)
 	res 7, [hl]
 	ld hl, wFlags_0xcd60
 	res 0, [hl]                  ; player is no longer engaged by any trainer
-	ld a, [W_ISINBATTLE] ; W_ISINBATTLE
+	ld a, [W_ISINBATTLE]
 	cp $ff
 	jp z, ResetButtonPressedAndMapScript
 	ld a, $2
 	call ReadTrainerHeaderInfo
 	ld a, [wTrainerHeaderFlagBit]
 	ld c, a
-	ld b, $1
+	ld b, FLAG_SET
 	call TrainerFlagAction   ; flag trainer as fought
 	ld a, [W_ENEMYMONORTRAINERCLASS]
 	cp $c8
@@ -2429,39 +2422,37 @@ ResetButtonPressedAndMapScript:: ; 32c1 (0:32c1)
 
 ; calls TrainerWalkUpToPlayer
 TrainerWalkUpToPlayer_Bank0:: ; 32cf (0:32cf)
-	ld b, BANK(TrainerWalkUpToPlayer)
-	ld hl, TrainerWalkUpToPlayer
-	jp Bankswitch
+	jpba TrainerWalkUpToPlayer
 
 ; sets opponent type and mon set/lvl based on the engaging trainer data
 InitBattleEnemyParameters:: ; 32d7 (0:32d7)
 	ld a, [wEngagedTrainerClass]
-	ld [W_CUROPPONENT], a ; wd059
+	ld [W_CUROPPONENT], a
 	ld [W_ENEMYMONORTRAINERCLASS], a
 	cp $c8
-	ld a, [wEngagedTrainerSet] ; wcd2e
+	ld a, [wEngagedTrainerSet]
 	jr c, .noTrainer
-	ld [W_TRAINERNO], a ; wd05d
+	ld [W_TRAINERNO], a
 	ret
 .noTrainer
-	ld [W_CURENEMYLVL], a ; W_CURENEMYLVL
+	ld [W_CURENEMYLVL], a
 	ret
 
 GetSpritePosition1:: ; 32ef (0:32ef)
 	ld hl, _GetSpritePosition1
-	jr asm_3301
+	jr SpritePositionBankswitch
 
 GetSpritePosition2:: ; 32f4 (0:32f4)
 	ld hl, _GetSpritePosition2
-	jr asm_3301 ; 0x32f7 $8
+	jr SpritePositionBankswitch
 
 SetSpritePosition1:: ; 32f9 (0:32f9)
 	ld hl, _SetSpritePosition1
-	jr asm_3301
+	jr SpritePositionBankswitch
 
 SetSpritePosition2:: ; 32fe (0:32fe)
 	ld hl, _SetSpritePosition2
-asm_3301:: ; 3301 (0:3301)
+SpritePositionBankswitch:: ; 3301 (0:3301)
 	ld b, BANK(_GetSpritePosition1) ; BANK(_GetSpritePosition2), BANK(_SetSpritePosition1), BANK(_SetSpritePosition2)
 	jp Bankswitch ; indirect jump to one of the four functions
 
@@ -2479,13 +2470,13 @@ CheckForEngagingTrainers:: ; 3306 (0:3306)
 	ret z
 	ld a, $2
 	call ReadTrainerHeaderInfo       ; read trainer flag's byte ptr
-	ld b, $2
+	ld b, FLAG_TEST
 	ld a, [wTrainerHeaderFlagBit]
 	ld c, a
 	call TrainerFlagAction        ; read trainer flag
 	ld a, c
-	and a
-	jr nz, .trainerAlreadyFought
+	and a ; has the trainer already been defeated?
+	jr nz, .continue
 	push hl
 	push de
 	push hl
@@ -2497,14 +2488,14 @@ CheckForEngagingTrainers:: ; 3306 (0:3306)
 	ld [wTrainerEngageDistance], a
 	ld a, [wSpriteIndex]
 	swap a
-	ld [wTrainerSpriteOffset], a ; wWhichTrade
+	ld [wTrainerSpriteOffset], a
 	predef TrainerEngage
 	pop de
 	pop hl
-	ld a, [wTrainerSpriteOffset] ; wWhichTrade
+	ld a, [wTrainerSpriteOffset]
 	and a
 	ret nz        ; break if the trainer is engaging
-.trainerAlreadyFought
+.continue
 	ld hl, $c
 	add hl, de
 	ld d, h
@@ -2539,7 +2530,7 @@ EngageMapTrainer:: ; 336a (0:336a)
 	ld a, [hli]    ; load trainer class
 	ld [wEngagedTrainerClass], a
 	ld a, [hl]     ; load trainer mon set
-	ld [wEnemyMonAttackMod], a ; wcd2e
+	ld [wEnemyMonAttackMod], a
 	jp PlayTrainerMusic
 
 PrintEndBattleText:: ; 3381 (0:3381)
@@ -2584,13 +2575,15 @@ GetSavedEndBattleTextPointer:: ; 33b7 (0:33b7)
 
 TrainerEndBattleText:: ; 33cf (0:33cf)
 	TX_FAR _TrainerNameText
-	db $08
+	TX_ASM
 	call GetSavedEndBattleTextPointer
 	call TextCommandProcessor
 	jp TextScriptEnd
 
+; only engage withe trainer if the player is not already
+; engaged with another trainer
 ; XXX unused?
-Func_33dd:: ; 33dd (0:33dd)
+CheckIfAlreadyEngaged:: ; 33dd (0:33dd)
 	ld a, [wFlags_0xcd60]
 	bit 0, a
 	ret nz
@@ -2606,13 +2599,13 @@ PlayTrainerMusic:: ; 33e8 (0:33e8)
 	ret z
 	cp $c8 + SONY3
 	ret z
-	ld a, [W_GYMLEADERNO] ; W_GYMLEADERNO
+	ld a, [W_GYMLEADERNO]
 	and a
 	ret nz
 	xor a
 	ld [wMusicHeaderPointer], a
 	ld a, $ff
-	call PlaySound      ; stop music
+	call PlaySound
 	ld a, BANK(Music_MeetEvilTrainer)
 	ld [wc0ef], a
 	ld [wc0f0], a
@@ -2719,20 +2712,18 @@ IsItemInBag:: ; 3493 (0:3493)
 
 DisplayPokedex:: ; 349b (0:349b)
 	ld [wd11e], a
-	ld b, BANK(Func_7c18)
-	ld hl, Func_7c18
-	jp Bankswitch
+	jpba _DisplayPokedex
 
 SetSpriteFacingDirectionAndDelay:: ; 34a6 (0:34a6)
 	call SetSpriteFacingDirection
-	ld c, $6
+	ld c, 6
 	jp DelayFrames
 
 SetSpriteFacingDirection:: ; 34ae (0:34ae)
 	ld a, $9
 	ld [H_SPRITEDATAOFFSET], a
 	call GetPointerWithinSpriteStateData1
-	ld a, [$ff8d]
+	ld a, [hSpriteFacingDirection]
 	ld [hl], a
 	ret
 
@@ -2746,7 +2737,7 @@ SetSpriteImageIndexAfterSettingFacingDirection:: ; 34b9 (0:34b9)
 ; INPUT:
 ; hl = address of array
 ; OUTPUT:
-; [wWhichTrade] = if there is match, the matching array index
+; [wCoordIndex] = if there is match, the matching array index
 ; sets carry if the coordinates are in the array, clears carry if not
 ArePlayerCoordsInArray:: ; 34bf (0:34bf)
 	ld a,[W_YCOORD]
@@ -2757,13 +2748,13 @@ ArePlayerCoordsInArray:: ; 34bf (0:34bf)
 
 CheckCoords:: ; 34c7 (0:34c7)
 	xor a
-	ld [wWhichTrade],a
+	ld [wCoordIndex],a
 .loop
 	ld a,[hli]
 	cp a,$ff ; reached terminator?
 	jr z,.notInArray
 	push hl
-	ld hl,wWhichTrade
+	ld hl,wCoordIndex
 	inc [hl]
 	pop hl
 .compareYCoord
@@ -2787,7 +2778,7 @@ CheckCoords:: ; 34c7 (0:34c7)
 ; hl = address of array
 ; [H_SPRITEINDEX] = index of boulder sprite
 ; OUTPUT:
-; [wWhichTrade] = if there is match, the matching array index
+; [wCoordIndex] = if there is match, the matching array index
 ; sets carry if the coordinates are in the array, clears carry if not
 CheckBoulderCoords:: ; 34e4 (0:34e4)
 	push hl
@@ -2842,7 +2833,7 @@ DecodeRLEList:: ; 350c (0:350c)
 	ld a, [wRLEByteCount]
 	add c
 	ld [wRLEByteCount], a     ; update total number of written bytes
-	ld a, [H_DOWNARROWBLINKCNT1] ; $ff8b
+	ld a, [H_DOWNARROWBLINKCNT1]
 	call FillMemory              ; write a c-times to output
 	inc de
 	jr .listLoop
@@ -2853,18 +2844,18 @@ DecodeRLEList:: ; 350c (0:350c)
 	inc a                        ; include sentinel in counting
 	ret
 
-; sets movement byte 1 for sprite [$FF8C] to $FE and byte 2 to [$FF8D]
+; sets movement byte 1 for sprite [H_SPRITEINDEX] to $FE and byte 2 to [hSpriteMovementByte2]
 SetSpriteMovementBytesToFE:: ; 3533 (0:3533)
 	push hl
 	call GetSpriteMovementByte1Pointer
 	ld [hl], $fe
 	call GetSpriteMovementByte2Pointer
-	ld a, [$ff8d]
+	ld a, [hSpriteMovementByte2]
 	ld [hl], a
 	pop hl
 	ret
 
-; sets both movement bytes for sprite [$FF8C] to $FF
+; sets both movement bytes for sprite [H_SPRITEINDEX] to $FF
 SetSpriteMovementBytesToFF:: ; 3541 (0:3541)
 	push hl
 	call GetSpriteMovementByte1Pointer
@@ -2874,20 +2865,20 @@ SetSpriteMovementBytesToFF:: ; 3541 (0:3541)
 	pop hl
 	ret
 
-; returns the sprite movement byte 1 pointer for sprite [$FF8C] in hl
+; returns the sprite movement byte 1 pointer for sprite [H_SPRITEINDEX] in hl
 GetSpriteMovementByte1Pointer:: ; 354e (0:354e)
 	ld h,$C2
-	ld a,[H_SPRITEINDEX] ; the sprite to move
+	ld a,[H_SPRITEINDEX]
 	swap a
 	add a,6
 	ld l,a
 	ret
 
-; returns the sprite movement byte 2 pointer for sprite [$FF8C] in hl
+; returns the sprite movement byte 2 pointer for sprite [H_SPRITEINDEX] in hl
 GetSpriteMovementByte2Pointer:: ; 3558 (0:3558)
 	push de
 	ld hl,W_MAPSPRITEDATA
-	ld a,[$FF8C] ; the sprite to move
+	ld a,[H_SPRITEINDEX]
 	dec a
 	add a
 	ld d,0
@@ -2903,7 +2894,7 @@ GetTrainerInformation:: ; 3566 (0:3566)
 	jr nz, .linkBattle
 	ld a, Bank(TrainerPicAndMoneyPointers)
 	call BankswitchHome
-	ld a, [W_TRAINERCLASS] ; wd031
+	ld a, [W_TRAINERCLASS]
 	dec a
 	ld hl, TrainerPicAndMoneyPointers
 	ld bc, $5
@@ -2930,24 +2921,22 @@ GetTrainerInformation:: ; 3566 (0:3566)
 	ret
 
 GetTrainerName:: ; 359e (0:359e)
-	ld b, BANK(GetTrainerName_)
-	ld hl, GetTrainerName_
-	jp Bankswitch
+	jpba GetTrainerName_
 
 
 HasEnoughMoney::
 ; Check if the player has at least as much
-; money as the 3-byte BCD value at $ff9f.
+; money as the 3-byte BCD value at hMoney.
 	ld de, wPlayerMoney
-	ld hl, $ff9f
+	ld hl, hMoney
 	ld c, 3
 	jp StringCmp
 
 HasEnoughCoins::
 ; Check if the player has at least as many
-; coins as the 2-byte BCD value at $ffa0.
+; coins as the 2-byte BCD value at hCoins.
 	ld de, wPlayerCoins
-	ld hl, $ffa0
+	ld hl, hCoins
 	ld c, 2
 	jp StringCmp
 
@@ -2955,19 +2944,19 @@ HasEnoughCoins::
 BankswitchHome:: ; 35bc (0:35bc)
 ; switches to bank # in a
 ; Only use this when in the home bank!
-	ld [wcf09],a
+	ld [wBankswitchHomeTemp],a
 	ld a,[H_LOADEDROMBANK]
-	ld [wcf08],a
-	ld a,[wcf09]
+	ld [wBankswitchHomeSavedROMBank],a
+	ld a,[wBankswitchHomeTemp]
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 BankswitchBack:: ; 35cd (0:35cd)
 ; returns from BankswitchHome
-	ld a,[wcf08]
+	ld a,[wBankswitchHomeSavedROMBank]
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 Bankswitch:: ; 35d6 (0:35d6)
@@ -2977,7 +2966,7 @@ Bankswitch:: ; 35d6 (0:35d6)
 	push af
 	ld a,b
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ld bc,.Return
 	push bc
 	jp [hl]
@@ -2985,7 +2974,7 @@ Bankswitch:: ; 35d6 (0:35d6)
 	pop bc
 	ld a,b
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 ; displays yes/no choice
@@ -3004,7 +2993,7 @@ Func_35f4:: ; 35f4 (0:35f4)
 InitYesNoTextBoxParameters:: ; 35ff (0:35ff)
 	xor a ; YES_NO_MENU
 	ld [wTwoOptionMenuID], a
-	hlCoord 14, 7
+	coord hl, 14, 7
 	ld bc, $80f
 	ret
 
@@ -3012,7 +3001,7 @@ YesNoChoicePokeCenter:: ; 360a (0:360a)
 	call SaveScreenTilesToBuffer1
 	ld a, HEAL_CANCEL_MENU
 	ld [wTwoOptionMenuID], a
-	hlCoord 11, 6
+	coord hl, 11, 6
 	ld bc, $80c
 	jr DisplayYesNoChoice
 
@@ -3020,7 +3009,7 @@ Func_361a:: ; 361a (0:361a)
 	call SaveScreenTilesToBuffer1
 	ld a, WIDE_YES_NO_MENU
 	ld [wTwoOptionMenuID], a
-	hlCoord 12, 7
+	coord hl, 12, 7
 	ld bc, $080d
 DisplayYesNoChoice:: ; 3628 (0:3628)
 	ld a, TWO_OPTION_MENU
@@ -3038,8 +3027,8 @@ CalcDifference:: ; 3633 (0:3633)
 	ret
 
 MoveSprite:: ; 363a (0:363a)
-; move the sprite [$FF8C] with the movement pointed to by de
-; actually only copies the movement data to wcc5b for later
+; move the sprite [H_SPRITEINDEX] with the movement pointed to by de
+; actually only copies the movement data to wNPCMovementDirections for later
 	call SetSpriteMovementBytesToFF
 MoveSprite_:: ; 363d (0:363d)
 	push hl
@@ -3047,7 +3036,7 @@ MoveSprite_:: ; 363d (0:363d)
 	call GetSpriteMovementByte1Pointer
 	xor a
 	ld [hl],a
-	ld hl,wcc5b
+	ld hl,wNPCMovementDirections
 	ld c,0
 
 .loop
@@ -3059,7 +3048,7 @@ MoveSprite_:: ; 363d (0:363d)
 	jr nz,.loop
 
 	ld a,c
-	ld [wcf0f],a ; number of steps taken
+	ld [wNPCNumScriptedSteps],a ; number of steps taken
 
 	pop bc
 	ld hl,wd730
@@ -3073,7 +3062,7 @@ MoveSprite_:: ; 363d (0:363d)
 	ld [wWastedByteCD3A],a
 	ret
 
-; divides [$ffe5] by [$ffe6] and stores the quotient in [$ffe7]
+; divides [hDividend2] by [hDivisor2] and stores the quotient in [hQuotient2]
 DivideBytes:: ; 366b (0:366b)
 	push hl
 	ld hl, $ffe7
@@ -3169,43 +3158,43 @@ UncompressSpriteFromDE:: ; 36eb (0:36eb)
 
 
 SaveScreenTilesToBuffer2:: ; 36f4 (0:36f4)
-	ld hl, wTileMap
+	coord hl, 0, 0
 	ld de, wTileMapBackup2
-	ld bc, $168
+	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	call CopyData
 	ret
 
 LoadScreenTilesFromBuffer2:: ; 3701 (0:3701)
 	call LoadScreenTilesFromBuffer2DisableBGTransfer
 	ld a, $1
-	ld [H_AUTOBGTRANSFERENABLED], a ; $ffba
+	ld [H_AUTOBGTRANSFERENABLED], a
 	ret
 
 ; loads screen tiles stored in wTileMapBackup2 but leaves H_AUTOBGTRANSFERENABLED disabled
 LoadScreenTilesFromBuffer2DisableBGTransfer:: ; 3709 (0:3709)
 	xor a
-	ld [H_AUTOBGTRANSFERENABLED], a ; $ffba
+	ld [H_AUTOBGTRANSFERENABLED], a
 	ld hl, wTileMapBackup2
-	ld de, wTileMap
+	coord de, 0, 0
 	ld bc, $168
 	call CopyData
 	ret
 
 SaveScreenTilesToBuffer1:: ; 3719 (0:3719)
-	ld hl, wTileMap
+	coord hl, 0, 0
 	ld de, wTileMapBackup
-	ld bc, $168
+	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	jp CopyData
 
 LoadScreenTilesFromBuffer1:: ; 3725 (0:3725)
 	xor a
-	ld [H_AUTOBGTRANSFERENABLED], a ; $ffba
+	ld [H_AUTOBGTRANSFERENABLED], a
 	ld hl, wTileMapBackup
-	ld de, wTileMap
-	ld bc, $168
+	coord de, 0, 0
+	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	call CopyData
 	ld a, $1
-	ld [H_AUTOBGTRANSFERENABLED], a ; $ffba
+	ld [H_AUTOBGTRANSFERENABLED], a
 	ret
 
 DelayFrames:: ; 3739 (0:3739)
@@ -3279,11 +3268,11 @@ GetName:: ; 376b (0:376b)
 	ld e,l
 	ld d,h
 	jr .gotPtr
-.otherEntries ; $378d
+.otherEntries
 	;2-7 = OTHER ENTRIES
 	ld a,[wPredefBank]
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ld a,[wNameListType]    ;VariousNames' entryID
 	dec a
 	add a
@@ -3291,7 +3280,7 @@ GetName:: ; 376b (0:376b)
 	ld e,a
 	jr nc,.skip
 	inc d
-.skip ; $37a0
+.skip
 	ld hl,NamePointers
 	add hl,de
 	ld a,[hli]
@@ -3321,7 +3310,7 @@ GetName:: ; 376b (0:376b)
 	ld de,wcd6d
 	ld bc,$0014
 	call CopyData
-.gotPtr ; $37cd
+.gotPtr
 	ld a,e
 	ld [wcf8d],a
 	ld a,d
@@ -3331,7 +3320,7 @@ GetName:: ; 376b (0:376b)
 	pop hl
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	ret
 
 GetItemPrice:: ; 37df (0:37df)
@@ -3346,7 +3335,7 @@ GetItemPrice:: ; 37df (0:37df)
 	ld a, $f ; hardcoded Bank
 .asm_37ed
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ld hl, wItemPrices
 	ld a, [hli]
 	ld h, [hl]
@@ -3370,13 +3359,13 @@ GetItemPrice:: ; 37df (0:37df)
 .getTMPrice
 	ld a, Bank(GetMachinePrice)
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	call GetMachinePrice
 .asm_381c
 	ld de, hItemPrice
 	pop af
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ret
 
 ; copies a string from [de] to [wcf4b]
@@ -3463,7 +3452,7 @@ WaitForTextScrollButtonPress:: ; 3865 (0:3865)
 	jr z, .skipAnimation
 	call TownMapSpriteBlinkingAnimation
 .skipAnimation
-	hlCoord 18, 16
+	coord hl, 18, 16
 	call HandleDownArrowBlinkTiming
 	pop hl
 	call JoypadLowSensitivity
@@ -3483,10 +3472,10 @@ ManualTextScroll:: ; 3898 (0:3898)
 	cp LINK_STATE_BATTLING
 	jr z, .inLinkBattle
 	call WaitForTextScrollButtonPress
-	ld a, (SFX_02_40 - SFX_Headers_02) / 3
+	ld a, SFX_PRESS_AB
 	jp PlaySound
 .inLinkBattle
-	ld c, $41
+	ld c, 65
 	jp DelayFrames
 
 ; function to do multiplication
@@ -3521,11 +3510,11 @@ Divide:: ; 38b9 (0:38b9)
 	push af
 	ld a,Bank(_Divide)
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	call _Divide
 	pop af
 	ld [H_LOADEDROMBANK],a
-	ld [$2000],a
+	ld [MBC1RomBank],a
 	pop bc
 	pop de
 	pop hl
@@ -3533,18 +3522,18 @@ Divide:: ; 38b9 (0:38b9)
 
 ; This function is used to wait a short period after printing a letter to the
 ; screen unless the player presses the A/B button or the delay is turned off
-; through the [wd730] or [wd358] flags.
+; through the [wd730] or [wLetterPrintingDelayFlags] flags.
 PrintLetterDelay:: ; 38d3 (0:38d3)
 	ld a,[wd730]
 	bit 6,a
 	ret nz
-	ld a,[wd358]
+	ld a,[wLetterPrintingDelayFlags]
 	bit 1,a
 	ret z
 	push hl
 	push de
 	push bc
-	ld a,[wd358]
+	ld a,[wLetterPrintingDelayFlags]
 	bit 0,a
 	jr z,.waitOneFrame
 	ld a,[W_OPTIONS]
@@ -3594,12 +3583,10 @@ CopyDataUntil:: ; 3913 (0:3913)
 
 ; Function to remove a pokemon from the party or the current box.
 ; wWhichPokemon determines the pokemon.
-; [wcf95] == 0 specifies the party.
-; [wcf95] != 0 specifies the current box.
+; [wRemoveMonFromBox] == 0 specifies the party.
+; [wRemoveMonFromBox] != 0 specifies the current box.
 RemovePokemon:: ; 391f (0:391f)
-	ld hl, _RemovePokemon
-	ld b, BANK(_RemovePokemon)
-	jp Bankswitch
+	jpab _RemovePokemon
 
 AddPartyMon:: ; 3927 (0:3927)
 	push hl
@@ -3753,7 +3740,7 @@ CalcStat:: ; 394a (0:394a)
 	ld [H_MULTIPLICAND+1], a
 	xor a
 	ld [H_MULTIPLICAND], a
-	ld a, [W_CURENEMYLVL] ; W_CURENEMYLVL
+	ld a, [W_CURENEMYLVL]
 	ld [H_MULTIPLIER], a
 	call Multiply            ; ((Base + IV) * 2 + ceil(Sqrt(stat exp)) / 4) * Level
 	ld a, [H_MULTIPLICAND]
@@ -3771,7 +3758,7 @@ CalcStat:: ; 394a (0:394a)
 	cp $1
 	ld a, $5
 	jr nz, .notHPStat
-	ld a, [W_CURENEMYLVL] ; W_CURENEMYLVL
+	ld a, [W_CURENEMYLVL]
 	ld b, a
 	ld a, [H_MULTIPLICAND+2]
 	add b
@@ -3816,25 +3803,25 @@ AddEnemyMonToPlayerParty:: ; 3a53 (0:3a53)
 	push af
 	ld a, BANK(_AddEnemyMonToPlayerParty)
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	call _AddEnemyMonToPlayerParty
 	pop bc
 	ld a, b
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ret
 
-Func_3a68:: ; 3a68 (0:3a68)
+MoveMon:: ; 3a68 (0:3a68)
 	ld a, [H_LOADEDROMBANK]
 	push af
-	ld a, BANK(Func_f51e)
+	ld a, BANK(_MoveMon)
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
-	call Func_f51e
+	ld [MBC1RomBank], a
+	call _MoveMon
 	pop bc
 	ld a, b
 	ld [H_LOADEDROMBANK], a
-	ld [$2000], a
+	ld [MBC1RomBank], a
 	ret
 
 ; skips a text entries, each of size $b (like trainer name, OT name, rival name, ...)
@@ -3923,7 +3910,7 @@ HandleMenuInputPokemonSelection:: ; 3ac2 (0:3ac2)
 	ld [H_DOWNARROWBLINKCNT2],a ; blinking down arrow timing value 2
 .loop1
 	xor a
-	ld [wPartyMonAnimCounter],a ; counter for pokemon shaking animation
+	ld [wAnimCounter],a ; counter for pokemon shaking animation
 	call PlaceMenuCursor
 	call Delay3
 .loop2
@@ -3939,7 +3926,7 @@ HandleMenuInputPokemonSelection:: ; 3ac2 (0:3ac2)
 	and a ; was a key pressed?
 	jr nz,.keyPressed
 	push hl
-	hlCoord 18, 11 ; coordinates of blinking down arrow in some menus
+	coord hl, 18, 11 ; coordinates of blinking down arrow in some menus
 	call HandleDownArrowBlinkTiming ; blink down arrow (if any)
 	pop hl
 	ld a,[wMenuJoypadPollCount]
@@ -4009,8 +3996,8 @@ HandleMenuInputPokemonSelection:: ; 3ac2 (0:3ac2)
 	bit 5,[hl]
 	pop hl
 	jr nz,.skipPlayingSound
-	ld a,(SFX_02_40 - SFX_Headers_02) / 3
-	call PlaySound ; play sound
+	ld a,SFX_PRESS_AB
+	call PlaySound
 .skipPlayingSound
 	pop af
 	ld [H_DOWNARROWBLINKCNT2],a
@@ -4021,7 +4008,7 @@ HandleMenuInputPokemonSelection:: ; 3ac2 (0:3ac2)
 	ld a,[hJoy5]
 	ret
 .noWrappingAround
-	ld a,[wcc37]
+	ld a,[wMenuWatchMovingOutOfBounds]
 	and a ; should we return if the user tried to go past the top or bottom?
 	jr z,.checkOtherKeys
 	jr .checkIfAButtonOrBButtonPressed
@@ -4030,7 +4017,7 @@ PlaceMenuCursor:: ; 3b7c (0:3b7c)
 	ld a,[wTopMenuItemY]
 	and a ; is the y coordinate 0?
 	jr z,.adjustForXCoord
-	ld hl,wTileMap
+	coord hl, 0, 0
 	ld bc,SCREEN_WIDTH
 .topMenuItemLoop
 	add hl,bc
@@ -4199,8 +4186,8 @@ PrintText:: ; 3c49 (0:3c49)
 	call UpdateSprites
 	call Delay3
 	pop hl
-Func_3c59:: ; 3c59 (0:3c59)
-	bcCoord 1, 14
+PrintText_NoCreatingTextBox:: ; 3c59 (0:3c59)
+	coord bc, 1, 14
 	jp TextCommandProcessor
 
 
@@ -4566,7 +4553,7 @@ GiveItem::
 	ld [wd11e], a
 	ld [wcf91], a
 	ld a, c
-	ld [wcf96], a
+	ld [wItemQuantity], a
 	ld hl,wNumBagItems
 	call AddItemToInventory
 	ret nc
@@ -4581,11 +4568,9 @@ GivePokemon::
 	ld [wcf91], a
 	ld a, c
 	ld [W_CURENEMYLVL], a
-	xor a
-	ld [wcc49], a
-	ld b, BANK(_GivePokemon)
-	ld hl, _GivePokemon
-	jp Bankswitch
+	xor a ; PLAYER_PARTY_DATA
+	ld [wMonDataLocation], a
+	jpba _GivePokemon
 
 
 Random::
@@ -4606,9 +4591,7 @@ INCLUDE "home/predef.asm"
 
 
 Func_3ead:: ; 3ead (0:3ead)
-	ld b, BANK(CinnabarGymQuiz_1eb0a)
-	ld hl, CinnabarGymQuiz_1eb0a
-	jp Bankswitch
+	jpba CinnabarGymQuiz_1eb0a
 
 CheckForHiddenObjectOrBookshelfOrCardKeyDoor:: ; 3eb5 (0:3eb5)
 	ld a, [H_LOADEDROMBANK]
@@ -4648,10 +4631,10 @@ CheckForHiddenObjectOrBookshelfOrCardKeyDoor:: ; 3eb5 (0:3eb5)
 	ret
 
 PrintPredefTextID:: ; 3ef5 (0:3ef5)
-	ld [H_DOWNARROWBLINKCNT2], a ; $ff8c
+	ld [H_DOWNARROWBLINKCNT2], a
 	ld hl, TextPredefs
 	call SetMapTextPointer
-	ld hl, wcf11
+	ld hl, wTextPredefFlag
 	set 0, [hl]
 	call DisplayTextID
 
@@ -4677,7 +4660,7 @@ SetMapTextPointer:: ; 3f0f (0:3f0f)
 TextPredefs::
 	add_tx_pre CardKeySuccessText                   ; 01
 	add_tx_pre CardKeyFailText                      ; 02
-	add_tx_pre RedBedroomPC                         ; 03
+	add_tx_pre RedBedroomPCText                     ; 03
 	add_tx_pre RedBedroomSNESText                   ; 04
 	add_tx_pre PushStartText                        ; 05
 	add_tx_pre SaveOptionText                       ; 06
@@ -4701,17 +4684,17 @@ TextPredefs::
 	add_tx_pre SaffronCityPokecenterBenchGuyText    ; 18
 	add_tx_pre MtMoonPokecenterBenchGuyText         ; 19
 	add_tx_pre RockTunnelPokecenterBenchGuyText     ; 1A
-	add_tx_pre UnusedBenchGuyText1                  ; 1B
-	add_tx_pre UnusedBenchGuyText2                  ; 1C
-	add_tx_pre UnusedBenchGuyText3                  ; 1D
-	add_tx_pre TerminatorText_62508                 ; 1E
-	add_tx_pre PredefText1f                         ; 1F
+	add_tx_pre UnusedBenchGuyText1                  ; 1B XXX unused
+	add_tx_pre UnusedBenchGuyText2                  ; 1C XXX unused
+	add_tx_pre UnusedBenchGuyText3                  ; 1D XXX unused
+	add_tx_pre UnusedPredefText                     ; 1E XXX unused
+	add_tx_pre PokemonCenterPCText                  ; 1F
 	add_tx_pre ViridianSchoolNotebook               ; 20
 	add_tx_pre ViridianSchoolBlackboard             ; 21
 	add_tx_pre JustAMomentText                      ; 22
-	add_tx_pre PredefText23                         ; 23
+	add_tx_pre OpenBillsPCText                      ; 23
 	add_tx_pre FoundHiddenItemText                  ; 24
-	add_tx_pre HiddenItemBagFullText                ; 25
+	add_tx_pre HiddenItemBagFullText                ; 25 XXX unused
 	add_tx_pre VermilionGymTrashText                ; 26
 	add_tx_pre IndigoPlateauHQText                  ; 27
 	add_tx_pre GameCornerOutOfOrderText             ; 28
@@ -4734,7 +4717,7 @@ TextPredefs::
 	add_tx_pre NewBicycleText                       ; 39
 	add_tx_pre IndigoPlateauStatues                 ; 3A
 	add_tx_pre VermilionGymTrashSuccesText1         ; 3B
-	add_tx_pre VermilionGymTrashSuccesText2         ; 3C
+	add_tx_pre VermilionGymTrashSuccesText2         ; 3C XXX unused
 	add_tx_pre VermilionGymTrashSuccesText3         ; 3D
 	add_tx_pre VermilionGymTrashFailText            ; 3E
 	add_tx_pre TownMapText                          ; 3F

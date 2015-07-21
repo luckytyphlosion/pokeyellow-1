@@ -12,7 +12,7 @@ POKEDEX_TEXT EQU $2e
 MOVE_NAMES   EQU $2f
 
 INCLUDE "macros.asm"
-
+INCLUDE "hram.asm"
 
 
 SECTION "Text 1", ROMX, BANK[TEXT_1]
@@ -1031,13 +1031,13 @@ _HiddenItemBagFullText::
 _FoundHiddenCoinsText::
 	text $52, " found"
 	line "@"
-	TX_BCD $ffa0, $c2
+	TX_BCD hCoins, $c2
 	text " coins!@@"
 
 _FoundHiddenCoins2Text::
 	text $52, " found"
 	line "@"
-	TX_BCD $ffa0, $c2
+	TX_BCD hCoins, $c2
 	text " coins!@@"
 
 _DroppedHiddenCoinsText::
@@ -1825,7 +1825,7 @@ _MonWasStoredText::
 	TX_RAM wcf4b
 	text " was"
 	line "stored in Box @"
-	TX_RAM wWhichTrade
+	TX_RAM wBoxNumString
 	text "."
 	prompt
 
@@ -2089,7 +2089,7 @@ _ColosseumVersionText::
 	prompt
 
 _Char00Text::
-	TX_NUM $FF8C,1,2
+	TX_NUM hSpriteIndexOrTextID,1,2
 	text " error."
 	done
 
@@ -2489,11 +2489,11 @@ _DreamWasEatenText::
 	line "dream was eaten!"
 	prompt
 
-_BattleCenterMText1::
+_TradeCenterText1::
 	text "!"
 	done
 
-_TradeCenterMText1::
+_ColosseumText1::
 	text "!"
 	done
 
@@ -2641,7 +2641,7 @@ _PokemartTellBuyPriceText::
 	text "?"
 	line "That will be"
 	cont "¥@"
-	TX_BCD $ff9f, $c3
+	TX_BCD hMoney, $c3
 	text ". OK?"
 	done
 
@@ -2668,7 +2668,7 @@ _PokemonSellingGreetingText::
 _PokemartTellSellPriceText::
 	text "I can pay you"
 	line "¥@"
-	TX_BCD $ff9f, $c3
+	TX_BCD hMoney, $c3
 	text " for that."
 	done
 
